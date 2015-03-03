@@ -23,7 +23,7 @@ void InteractiveRenderer::run(std::vector<OutputDriver *>/*output_list*/)
 {
 }
 
-    SDL_MOUSEMOTION    = 0x400, /**< Mouse moved */
-    SDL_MOUSEBUTTONDOWN,        /**< Mouse button pressed */
-    SDL_MOUSEBUTTONUP,          /**< Mouse button released */
-    SDL_MOUSEWHEEL,             /**< Mouse wheel motion */
+//    SDL_MOUSEMOTION    = 0x400, /**< Mouse moved */
+//    SDL_MOUSEBUTTONDOWN,        /**< Mouse button pressed */
+//    SDL_MOUSEBUTTONUP,          /**< Mouse button released */
+//    SDL_MOUSEWHEEL,             /**< Mouse wheel motion */

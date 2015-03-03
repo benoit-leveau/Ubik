@@ -5,15 +5,26 @@
 #include "exrdriver.hpp"
 #include "displaydriver.hpp"
 #include "scene.hpp"
-#include "renderer.hpp"
+#include "renderer/renderer.hpp"
 
 
-int main(int, char**)
+int main(int, char**argv)
 {
     std::vector<OutputDriver *> output_list;
 
     // render options
-    Options options(640, 480, true, true, 64, "/milk/users/benoit/output.0001.exr");
+    Options options(atoi(argv[1]), // width
+                    atoi(argv[2]), // height
+                    bool(atoi(argv[3])), // interactive
+                    bool(atoi(argv[4])), // show_window
+                    atoi(argv[5]), // bucketsize
+                    bool(atoi(argv[6])), // spiral mode
+                    true, // path tracer
+                    true, // fixed sampling
+                    1, // min_samples
+                    atoi(argv[7]), // max_samples
+                    atoi(argv[8]), // nbthreads
+                    std::string(argv[9]));
 
     // read/construct scene 
     Scene *scene = new Scene();

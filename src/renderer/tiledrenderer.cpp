@@ -6,6 +6,7 @@
 
 */
 
+#include <iostream>
 #include <chrono>
 #include <unistd.h>
 
@@ -18,13 +19,13 @@
 #include "options.hpp"
 
 
-void render_task(size_t threadid, Task *task)
+void render_task(size_t threadid, Task *task, Renderer *renderer)
 {
     // start chrono
     auto t_start = std::chrono::high_resolution_clock::now();
     
     // do the real work
-    task->bucket->render(task->scene);
+    task->bucket->render(renderer->sampler, renderer->integrator, renderer->scene);
 
     // end chrono
     auto t_end = std::chrono::high_resolution_clock::now();
@@ -35,6 +36,7 @@ void render_task(size_t threadid, Task *task)
     task->completed = true;
 }
 
+
 TiledRenderer::TiledRenderer(Scene *scene, const Options &options) : 
     Renderer(scene, options),
     bucketsize(options.bucketsize)    
@@ -42,14 +44,58 @@ TiledRenderer::TiledRenderer(Scene *scene, const Options &options) :
     // create list of buckets
     for (size_t y=0, bucket_y=0; y<height; y+=bucketsize, ++bucket_y){
         for (size_t x=0, bucket_x=0; x<width; x+=bucketsize, ++bucket_x){
-            Bucket *bucket = new Bucket(x, y, bucket_x, bucket_y, bucketsize);
+            Bucket *bucket = new Bucket(x, y, bucket_x, bucket_y, 
+                                        std::min(bucketsize, width-x), 
+                                        std::min(bucketsize, height-y));
             bucket_list.push_back(bucket);
         }
     }
 
+    if (options.spiral)
+    {
+        std::vector<Bucket *> bucket_list_spiral;
+        int number_tiles_x = ceil(width / float(bucketsize));
+        int number_tiles_y = ceil(height / float(bucketsize));
+        int dx = 0;
+        int dy = -1;
+        int x = (width/bucketsize-1)/2;
+        int y = (height/bucketsize-1)/2;
+        size_t length = 1;
+        size_t current_length = 0;
+        size_t iterations = 0;
+        size_t index = 0;
+        while(index<bucket_list.size())
+        {
+            if ((x>=0) and (x<number_tiles_x) and (y>=0) and (y<number_tiles_y))
+            {
+                bucket_list_spiral.push_back(bucket_list[y*number_tiles_x+x]);
+                ++index;
+            }
+            if (current_length == length)
+            {
+                // we're at a corner
+                iterations += 1;
+                current_length = 0;
+                // switch direction
+                int tmp = dx;
+                dx = -dy;
+                dy = tmp;
+            }
+            if (iterations == 2)
+            {
+                length += 1;
+                iterations = 0;
+            }
+            current_length += 1;
+            x += dx;
+            y += dy;
+        }
+        std::swap(bucket_list, bucket_list_spiral);
+    }
+
     // create list of tasks
     for(auto &bucket : bucket_list){
-        Task *task = new Task(bucket, scene);
+        Task *task = new Task(bucket);
         task_list.push_back(task);   
     }
 }
@@ -70,11 +116,11 @@ void TiledRenderer::run(std::vector<OutputDriver *>output_list)
     auto t_start = std::chrono::high_resolution_clock::now();
     
     // create the thread pool
-    ctpl::thread_pool pool(8);
+    ctpl::thread_pool pool(nbthreads);
 
     // add the tasks to the pool    
     for(auto &task : task_list){
-        pool.push(render_task, task);
+        pool.push(render_task, task, this);
     }
 
     // wait for all tasks to be processed
@@ -87,7 +133,7 @@ void TiledRenderer::run(std::vector<OutputDriver *>output_list)
             if ((*it)->completed)
             {             
                 Task *task(*it);
-                std::cout << "Bucket (" << task->bucket->index_x << "," << task->bucket->index_y << ") was rendered in " << task->time << " ms by thread #" << task->threadid << std::endl;
+                // std::cout << "Bucket (" << task->bucket->index_x << "," << task->bucket->index_y << ") was rendered in " << task->time << " ms by thread #" << task->threadid << std::endl;
                 for(auto &output : output_list)
                     output->write(task->bucket);
                 it = tasks_pending.erase(it);

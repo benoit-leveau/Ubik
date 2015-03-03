@@ -6,8 +6,11 @@
 
 */
 
+#include <iostream>
+
 #include <SDL.h>
 
+#include "color.hpp"
 #include "displaydriver.hpp"
 #include "bucket.hpp"
 
@@ -72,15 +75,15 @@ void DisplayDriver::clear()
 
 void DisplayDriver::write(Bucket *bucket)
 {
-    for (size_t y=0; y<bucket->bucketsize; ++y){
-	   	for (size_t x=0; x<bucket->bucketsize; ++x){
+    for (size_t y=0; y<bucket->bucketheight; ++y){
+	   	for (size_t x=0; x<bucket->bucketwidth; ++x){
 			size_t image_offset  = ((y+bucket->ypos)*width+(x+bucket->xpos))*4;
-            size_t bucket_offset = (y*bucket->bucketsize+x);
-            const Imf::Rgba &pixel(bucket->bucketdata[bucket_offset]);
+            size_t bucket_offset = (y*bucket->bucketwidth+x);
+            const Color &pixel(bucket->bucketdata[bucket_offset]);
             pixeldata[image_offset+0] = static_cast<char>(pixel.r * 255.0f);
             pixeldata[image_offset+1] = static_cast<char>(pixel.g * 255.0f);
             pixeldata[image_offset+2] = static_cast<char>(pixel.b * 255.0f);
-            pixeldata[image_offset+3] = static_cast<char>(pixel.a * 255.0f);
+            pixeldata[image_offset+3] = static_cast<char>(255);
 		}
 	}
 }

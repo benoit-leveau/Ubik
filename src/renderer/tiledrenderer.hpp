@@ -1,7 +1,7 @@
 /*
 
 ***********************************************************
-* © Milk VFX, inc. All rights reserved. *
+* © Benoit Leveau - All rights reserved. *
 ***********************************************************
 
 */
@@ -9,12 +9,13 @@
 #ifndef TILEDRENDERER_H
 #define TILEDRENDERER_H
 
+#include <cstddef>
 #include <vector>
 #include <list>
 
 #include "renderer.hpp"
 
-// forwrard declaration
+// forward declaration
 class Bucket;
 class Task;
 

@@ -1,7 +1,7 @@
 /*
 
 ***********************************************************
-* © Milk VFX, inc. All rights reserved. *
+* © Benoit Leveau - All rights reserved. *
 ***********************************************************
 
 */
@@ -13,6 +13,8 @@
 #include <vector>
 
 // forward declaration
+class Sampler;
+class Integrator;
 class Scene;
 class Options;
 class OutputDriver;
@@ -27,10 +29,13 @@ public:
     virtual void run(std::vector<OutputDriver *>output_list) = 0;
     static Renderer *create_renderer(Scene *scene, const Options &options);
 
-protected:
+// protected:
     Scene *scene;
+    Sampler *sampler;
+    Integrator *integrator;    
     size_t width;
     size_t height;
+    size_t nbthreads;
 };
 
 #endif // !RENDERER_H

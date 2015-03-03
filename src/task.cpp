@@ -10,9 +10,8 @@
 #include "task.hpp"
 
 
-Task::Task(Bucket *bucket, Scene *scene) : 
+Task::Task(Bucket *bucket) : 
     bucket(bucket), 
-    scene(scene),
     completed(false),
     time(0.0),
     threadid(-1)

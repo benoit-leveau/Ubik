@@ -1,7 +1,7 @@
 /*
 
 ***********************************************************
-* © Milk VFX, inc. All rights reserved. *
+* © Benoit Leveau - All rights reserved. *
 ***********************************************************
 
 */
@@ -10,21 +10,23 @@
 #define TASK_H
 
 #include <cstddef>
+#include <random>
 
 // forward declaration
 class Bucket;
 class Scene;
-
+class RNG;
 
 class Task
 {
 public:
+    Task(Bucket *bucket);
+
     Bucket *bucket;
-    Scene *scene;
+
     bool completed;
     double time;
     size_t threadid;
-    Task(Bucket *bucket, Scene *scene);
 };
 
 #endif // !TASK_H

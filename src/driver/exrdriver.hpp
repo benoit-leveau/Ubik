@@ -1,7 +1,7 @@
 /*
 
 ***********************************************************
-* © Milk VFX, inc. All rights reserved. *
+* © Benoit Leveau - All rights reserved. *
 ***********************************************************
 
 */
@@ -9,6 +9,7 @@
 #ifndef EXRDRIVER_H
 #define EXRDRIVER_H
 
+#include <cstddef>
 #include <OpenEXR/ImfTiledRgbaFile.h>
 
 #include "outputdriver.hpp"

@@ -1,7 +1,7 @@
 /*
 
 ***********************************************************
-* © Milk VFX, inc. All rights reserved. *
+* © Benoit Leveau - All rights reserved. *
 ***********************************************************
 
 */
@@ -25,9 +25,7 @@ Bucket::Bucket(size_t xpos, size_t ypos, size_t index_x, size_t index_y, size_t 
     bucketheight(bucketheight),
     completed(false)
 {
-    bucketdata = new Color[bucketwidth*bucketheight](); // should call default constructor
-    // for (size_t i=0; i<bucketsize*bucketsize; ++i)
-    //    bucketdata->r = bucketdata->g = bucketdata->b = 0.0;
+    bucketdata = new Color[bucketwidth*bucketheight]();
 }
  
 Bucket::~Bucket()

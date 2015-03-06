@@ -53,7 +53,7 @@ int main(int, char**argv)
     for(auto &output : output_list)
         output->close();
     
-    if (display && !options.interactive){
+    if (display/* && !options.interactive*/){
         // when there is a display driver, wait for user interaction to quit
         display->loop();
     }

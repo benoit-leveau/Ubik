@@ -24,6 +24,8 @@ public:
     virtual void update(){}
     virtual void loop(){}
     virtual void close(){}
+    virtual void clear(){}
+    virtual void draw(){}
 protected:
     size_t width;
     size_t height;

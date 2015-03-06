@@ -97,6 +97,13 @@ void DisplayDriver::update()
     SDL_RenderPresent(renderer);
 }
 
+void DisplayDriver::draw()
+{
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, texture, NULL, NULL);
+    SDL_RenderPresent(renderer);
+}
+
 void DisplayDriver::loop()
 {
     //Our event structure

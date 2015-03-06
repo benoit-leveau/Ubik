@@ -46,3 +46,13 @@ void Bucket::render(Sampler *sampler, Integrator *integrator, Scene *scene)
     // barrier?
     completed = true;
 }
+
+void Bucket::render_center(Sampler *sampler, Integrator *integrator, Scene *scene)
+{
+    size_t x=xpos+bucketwidth/2;
+    size_t y=ypos+bucketheight/2;
+    Color center = sampler->render(integrator, scene, x, y);
+    for (size_t offset=0; offset<bucketheight*bucketwidth; ++offset)
+        bucketdata[offset] = center;
+    completed = true;
+}

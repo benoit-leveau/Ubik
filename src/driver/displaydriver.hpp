@@ -27,9 +27,10 @@ public:
     void write(Bucket *bucket);
     void update();
     void loop();
-private:
     void clear();
-
+    void draw();
+private:
+    
     SDL_Renderer *renderer;
     SDL_Texture *texture;
     SDL_Window *window;

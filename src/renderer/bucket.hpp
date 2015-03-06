@@ -26,6 +26,7 @@ public:
     ~Bucket();
     
     void render(Sampler *sampler, Integrator *integrator, Scene *scene);
+    void render_center(Sampler *sampler, Integrator *integrator, Scene *scene);
 
     size_t xpos, ypos;
     size_t index_x, index_y;

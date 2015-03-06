@@ -18,16 +18,19 @@
 class Options;
 class Color;
 class Scene;
+class ImageRenderData;
 
 
-class PathTracer : public Integrator
+class ImageRender : public Integrator
 {
 public:
-    PathTracer(const Options &options);
-    virtual ~PathTracer();
+    ImageRender(const Options &options);
+    virtual ~ImageRender();
 
     virtual Color render(Scene *scene, size_t x, size_t y, size_t sample);
 private:
+    ImageRenderData *data;
+    bool add_noise;
 };
 
 #endif // !PATHTRACER_HPP

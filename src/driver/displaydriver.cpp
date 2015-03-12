@@ -77,15 +77,20 @@ void DisplayDriver::write(Bucket *bucket)
 {
     for (size_t y=0; y<bucket->bucketheight; ++y){
 	   	for (size_t x=0; x<bucket->bucketwidth; ++x){
-			size_t image_offset  = ((y+bucket->ypos)*width+(x+bucket->xpos))*4;
             size_t bucket_offset = (y*bucket->bucketwidth+x);
             const Color &pixel(bucket->bucketdata[bucket_offset]);
-            pixeldata[image_offset+0] = static_cast<char>(pixel.r * 255.0f);
-            pixeldata[image_offset+1] = static_cast<char>(pixel.g * 255.0f);
-            pixeldata[image_offset+2] = static_cast<char>(pixel.b * 255.0f);
-            pixeldata[image_offset+3] = static_cast<char>(255);
+            write_pixel(x+bucket->xpos, y+bucket->ypos, pixel);
 		}
 	}
+}
+
+void DisplayDriver::write_pixel(size_t x, size_t y, const Color &color)
+{
+    size_t image_offset  = (y*width+x)*4;
+    pixeldata[image_offset+0] = static_cast<char>(color.r * 255.0f);
+    pixeldata[image_offset+1] = static_cast<char>(color.g * 255.0f);
+    pixeldata[image_offset+2] = static_cast<char>(color.b * 255.0f);
+    pixeldata[image_offset+3] = static_cast<char>(255);
 }
 
 void DisplayDriver::update()

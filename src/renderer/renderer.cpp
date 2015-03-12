@@ -13,6 +13,7 @@
 #include "options.hpp"
 #include "fixedsampler.hpp"
 #include "pathtracer.hpp"
+#include "imagerender.hpp"
 
 
 Renderer::Renderer(Scene *scene, const Options &options) : 
@@ -26,7 +27,7 @@ Renderer::Renderer(Scene *scene, const Options &options) :
     if (options.fixedsampling)
         sampler = new FixedSampler(options);
     if (options.pathtracer)
-        integrator = new PathTracer(options);
+        integrator = new ImageRender(options); // PathTracer(options);
 }
 
 Renderer::~Renderer()

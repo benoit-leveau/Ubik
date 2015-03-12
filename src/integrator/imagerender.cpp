@@ -96,8 +96,14 @@ Color ImageRender::render(Scene *scene, size_t x, size_t y, size_t sample)
     // ...
 
     // convert (x, y) into image coordinates
-    size_t img_x = (x * data->imageWidth) / this->width;
-    size_t img_y = ((this->height-y-1) * data->imageLength) / this->height;
+    int img_x = x + scene->x;
+    int img_y = y + scene->x;
+    if ((img_x < 0) || (img_y < 0) || (img_x >= int(this->width)) || (img_y >= int(this->height)))
+    {
+        return Color(0, 0, 0);
+    }
+    img_x = (img_x * data->imageWidth) / this->width;
+    img_y = ((this->height-img_y-1) * data->imageLength) / this->height;
 
     if (data->tiled)
     {

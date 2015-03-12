@@ -6,8 +6,8 @@
 
 */
 
-#ifndef PATHTRACER_HPP
-#define PATHTRACER_HPP
+#ifndef IMAGERENDER_HPP
+#define IMAGERENDER_HPP
 
 #include <random>
 #include <string>
@@ -33,4 +33,4 @@ private:
     bool add_noise;
 };
 
-#endif // !PATHTRACER_HPP
+#endif // !IMAGERENDER_HPP

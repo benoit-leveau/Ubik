@@ -6,15 +6,18 @@
 
 */
 
-#ifndef CAMERA_HPP
-#define CAMERA_HPP
+#ifndef VECTOR_HPP
+#define VECTOR_HPP
 
-class Camera
+class Vector
 {
 public:
-    Camera();
-    virtual ~Camera();
-private:
+    Vector(float x, float y, float z);
+    ~Vector();
+
+    float x;
+    float y;
+    float z;
 };
 
-#endif // !CAMERA_HPP
+#endif // !VECTOR_HPP

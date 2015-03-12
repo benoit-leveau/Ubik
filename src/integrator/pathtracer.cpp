@@ -31,4 +31,5 @@ Color PathTracer::render(Scene *scene, size_t x, size_t y, size_t sample)
 
     // trace a ray
     // ...
+    return Color();
 }

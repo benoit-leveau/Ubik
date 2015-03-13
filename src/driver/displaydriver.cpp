@@ -14,7 +14,7 @@
 #include "displaydriver.hpp"
 #include "bucket.hpp"
 
-DisplayDriver::DisplayDriver(size_t width, size_t height) : OutputDriver(width, height), renderer(NULL), texture(NULL), window(NULL), pixeldata(NULL)
+DisplayDriver::DisplayDriver(size_t width, size_t height) : OutputDriver(width, height), renderer(nullptr), texture(nullptr), window(nullptr), pixeldata(nullptr)
 {
 	//First we need to start up SDL, and make sure it went ok
 	if (SDL_Init(SDL_INIT_VIDEO) != 0){
@@ -96,16 +96,16 @@ void DisplayDriver::write_pixel(size_t x, size_t y, const Color &color)
 void DisplayDriver::update()
 {
     // SDL_RenderPresent(renderer);
-    SDL_UpdateTexture(texture, NULL, pixeldata, width * 4);
+    SDL_UpdateTexture(texture, nullptr, pixeldata, width * 4);
     SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, texture, NULL, NULL);
+    SDL_RenderCopy(renderer, texture, nullptr, nullptr);
     SDL_RenderPresent(renderer);
 }
 
 void DisplayDriver::draw()
 {
     SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, texture, NULL, NULL);
+    SDL_RenderCopy(renderer, texture, nullptr, nullptr);
     SDL_RenderPresent(renderer);
 }
 
@@ -133,13 +133,15 @@ void DisplayDriver::loop()
 			}
 		}
         SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
+        SDL_RenderCopy(renderer, texture, nullptr, nullptr);
         SDL_RenderPresent(renderer);
 	}
 }
 
 DisplayDriver::~DisplayDriver()
 {
+    std::cout << "Deleting DisplayDriver" << std::endl;
+
     delete [] pixeldata;
 
 	//Clean up our objects and quit

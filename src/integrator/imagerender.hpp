@@ -24,10 +24,10 @@ class ImageRenderData;
 class ImageRender : public Integrator
 {
 public:
-    ImageRender(const Options &options);
+    ImageRender(const Options &options, std::shared_ptr<Scene> scene);
     virtual ~ImageRender();
 
-    virtual Color render(Scene *scene, size_t x, size_t y, size_t sample);
+    virtual Color render(size_t x, size_t y, size_t sample);
 private:
     ImageRenderData *data;
     bool add_noise;

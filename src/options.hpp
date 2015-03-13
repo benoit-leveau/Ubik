@@ -16,14 +16,14 @@
 class Options
 {
 public:
-    Options(size_t width, size_t height, bool interactive, bool show_window, size_t bucketsize, bool spiral, bool pathtracer, bool fixedsampling, size_t min_samples, size_t max_samples, size_t nbthreads, std::string output_file); 
+    Options(size_t width, size_t height, bool interactive, bool show_window, size_t bucketsize, std::string image_mode, bool pathtracer, bool fixedsampling, size_t min_samples, size_t max_samples, size_t nbthreads, std::string output_file); 
     
     size_t width;
     size_t height;
     bool interactive;
     bool show_window;
     size_t bucketsize;
-    bool spiral;
+    std::string image_mode;
     bool pathtracer;
     bool fixedsampling;
     size_t min_samples;

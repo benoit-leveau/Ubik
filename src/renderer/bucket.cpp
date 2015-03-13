@@ -18,7 +18,8 @@
 #include "sampler.hpp"
 
 
-Bucket::Bucket(size_t xpos, size_t ypos, size_t index_x, size_t index_y, size_t bucketwidth, size_t bucketheight) : 
+Bucket::Bucket(std::shared_ptr<Sampler> sampler, size_t xpos, size_t ypos, size_t index_x, size_t index_y, size_t bucketwidth, size_t bucketheight) : 
+    sampler(sampler),
     xpos(xpos), ypos(ypos),
     index_x(index_x), index_y(index_y),
     bucketwidth(bucketwidth),
@@ -33,26 +34,17 @@ Bucket::~Bucket()
     delete [] bucketdata;
 }
 
-void Bucket::render(Sampler *sampler, Integrator *integrator, Scene *scene)
+void Bucket::render()
 {
     for (size_t y=ypos; y<ypos+bucketheight; ++y)
     {
         for (size_t x=xpos; x<xpos+bucketwidth; ++x)
         {
             size_t offset = (y-ypos)*bucketwidth+(x-xpos);
-            bucketdata[offset] = sampler->render(integrator, scene, x, y);
+            bucketdata[offset] = sampler->render(x, y);
         }
     }
     // barrier?
     completed = true;
 }
 
-void Bucket::render_center(Sampler *sampler, Integrator *integrator, Scene *scene)
-{
-    size_t x=xpos+bucketwidth/2;
-    size_t y=ypos+bucketheight/2;
-    Color center = sampler->render(integrator, scene, x, y);
-    for (size_t offset=0; offset<bucketheight*bucketwidth; ++offset)
-        bucketdata[offset] = center;
-    completed = true;
-}

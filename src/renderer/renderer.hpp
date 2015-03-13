@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <vector>
+#include <memory>
 
 // forward declaration
 class Sampler;
@@ -23,16 +24,16 @@ class OutputDriver;
 class Renderer
 {
 public:
-    Renderer(Scene *scene, const Options &options);
+    Renderer(std::shared_ptr<Scene> scene, const Options &options);
     virtual ~Renderer();
 
-    virtual void run(std::vector<OutputDriver *>output_list) = 0;
-    static Renderer *create_renderer(Scene *scene, const Options &options);
+    virtual void run() = 0;
+    static std::unique_ptr<Renderer> create_renderer(std::shared_ptr<Scene> scene, const Options &options);
 
 // protected:
-    Scene *scene;
-    Sampler *sampler;
-    Integrator *integrator;
+    std::shared_ptr<Scene> scene;
+    std::shared_ptr<Sampler> sampler;
+    std::shared_ptr<Integrator> integrator;
     size_t width;
     size_t height;
     size_t nbthreads;

@@ -26,10 +26,6 @@
 
 #include <cmath>
 
-// integrate the renderer with SDL, no additional output driver
-// make the tasks interruptible (especially the bucket ones)
-
-
 std::atomic<int> current_pixel = ATOMIC_VAR_INIT(16);
 volatile bool threads_stop = false;
 
@@ -63,7 +59,10 @@ void render_loop(size_t thread_index, InteractiveRenderer *renderer)
         size_t pos_y = bucket_index_y * height_level;
         size_t center_x = pos_x + width_level / 2;
         size_t center_y = pos_y + height_level / 2;
-        Color result = renderer->sampler->render(renderer->integrator, renderer->scene, center_x, center_y);
+        Color result = renderer->sampler->render(center_x, center_y);
+        // store the result somewhere, along with number of samples, and scene iteration count
+        
+        // main thread should update image
         for (size_t y=pos_y; y<pos_y+height_level; ++y)
         {
             for (size_t x=pos_x; x<pos_x+width_level; ++x)
@@ -71,28 +70,22 @@ void render_loop(size_t thread_index, InteractiveRenderer *renderer)
                 renderer->display->write_pixel(x, y, result);
             }
         }
-        // usleep(1000);
-        // pixel_index = pixel_index % (renderer->width * renderer->height);
-        // size_t x = pixel_index % renderer->width;
-        // size_t y = pixel_index / renderer->width;
-        // Color result = renderer->sampler->render(renderer->integrator, renderer->scene, x, y);
-        // renderer->display->write_pixel(x, y, result);
     }
 }
 
-InteractiveRenderer::InteractiveRenderer(Scene *scene, const Options &options) :
+InteractiveRenderer::InteractiveRenderer(std::shared_ptr<Scene> scene, const Options &options) :
     Renderer(scene, options)
 {
+    display = std::unique_ptr<DisplayDriver>(new DisplayDriver(options.width, options.height));
 }
 
 InteractiveRenderer::~InteractiveRenderer()
 {
+    std::cout << "Deleting InteractiveRenderer" << std::endl;
 }
 
-void InteractiveRenderer::run(std::vector<OutputDriver *> output_list)
+void InteractiveRenderer::run()
 {
-    this->display = static_cast<DisplayDriver *>(output_list[0]);
-
     std::vector<std::thread> threads;
 
     for(size_t thread_index=0; thread_index<nbthreads; ++thread_index)
@@ -153,9 +146,3 @@ void InteractiveRenderer::run(std::vector<OutputDriver *> output_list)
         thread.join();
     }
 }
-
-//    SDL_MOUSEMOTION    = 0x400, /**< Mouse moved */
-//    SDL_MOUSEBUTTONDOWN,        /**< Mouse button pressed */
-//    SDL_MOUSEBUTTONUP,          /**< Mouse button released */
-//    SDL_MOUSEWHEEL,             /**< Mouse wheel motion */
-

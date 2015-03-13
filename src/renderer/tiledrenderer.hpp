@@ -18,18 +18,22 @@
 // forward declaration
 class Bucket;
 class Task;
+class OutputDriver;
+class DisplayDriver;
 
 class TiledRenderer : public Renderer
 {
 public:
-    TiledRenderer(Scene *scene, const Options &options);
+    TiledRenderer(std::shared_ptr<Scene> scene, const Options &options);
     virtual ~TiledRenderer();
 
-    virtual void run(std::vector<OutputDriver *>output_list);    
+    virtual void run();
 private:
     size_t bucketsize;
     std::vector<Bucket *> bucket_list;
     std::list<Task *>task_list;
+    std::vector<OutputDriver *>output_list;
+    DisplayDriver *display;
 };
 
 #endif // !TILEDRENDERER_H

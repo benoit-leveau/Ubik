@@ -15,33 +15,32 @@
 #include "pathtracer.hpp"
 #include "imagerender.hpp"
 
+#include <iostream>
+#include <memory>
 
-Renderer::Renderer(Scene *scene, const Options &options) : 
+Renderer::Renderer(std::shared_ptr<Scene> scene, const Options &options) : 
     scene(scene),
-    sampler(NULL),
-    integrator(NULL),
+    sampler(nullptr),
+    integrator(nullptr),
     width(options.width),
     height(options.height),
     nbthreads(options.nbthreads)
 {
-    if (options.fixedsampling)
-        sampler = new FixedSampler(options);
     if (options.pathtracer)
-        integrator = new ImageRender(options); // PathTracer(options);
+        integrator = std::shared_ptr<Integrator>(new ImageRender(options, scene)); // PathTracer, options
+    if (options.fixedsampling)
+        sampler = std::shared_ptr<Sampler>(new FixedSampler(options, integrator));
 }
 
 Renderer::~Renderer()
 {
-    if (sampler)
-        delete sampler;
-    if (integrator)
-        delete integrator;
+    std::cout << "Deleting Renderer" << std::endl;
 }
 
-Renderer *Renderer::create_renderer(Scene *scene, const Options &options)
+std::unique_ptr<Renderer> Renderer::create_renderer(std::shared_ptr<Scene> scene, const Options &options)
 {
     if (options.interactive)
-        return new InteractiveRenderer(scene, options);
+        return std::unique_ptr<Renderer>(new InteractiveRenderer(scene, options));
     else
-        return new TiledRenderer(scene, options);
+        return std::unique_ptr<Renderer>(new TiledRenderer(scene, options));
 }

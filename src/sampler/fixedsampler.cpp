@@ -13,21 +13,23 @@
 #include "color.hpp"
 
 
-FixedSampler::FixedSampler(const Options &options) : 
-    Sampler(options),
+FixedSampler::FixedSampler(const Options &options, std::shared_ptr<Integrator> integrator) : 
+    Sampler(options, integrator),
     num_samples(1<<options.max_samples)
 { 
 }
 
 FixedSampler::~FixedSampler()
-{}
+{
+    std::cout << "Deleting FixedSampler" << std::endl;
+}
 
-Color FixedSampler::render(Integrator *integrator, Scene *scene, size_t x, size_t y)
+Color FixedSampler::render(size_t x, size_t y)
 {
     Color color;
     for (size_t sample=0; sample<num_samples; ++sample)
     {
-        color += integrator->render(scene, x, y, sample);
+        color += integrator->render(x, y, sample);
     }
     color /= float(num_samples);
     return color;

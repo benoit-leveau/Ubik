@@ -33,15 +33,16 @@ EXRDriver::EXRDriver(size_t width, size_t height, size_t bucketsize, std::string
 
 void EXRDriver::close()
 {
-    if (out != NULL)
+    if (out != nullptr)
     {
         delete this->out;
-        out = NULL;
+        out = nullptr;
     }
 }
 
 EXRDriver::~EXRDriver()
 {
+    std::cout << "Deleting EXRDriver" << std::endl;
     this->close();
 }
 

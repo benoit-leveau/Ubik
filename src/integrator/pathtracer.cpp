@@ -15,15 +15,16 @@
 #include <chrono>
 #include <unistd.h>
 
-PathTracer::PathTracer(const Options &options) : Integrator(options)
+PathTracer::PathTracer(const Options &options, std::shared_ptr<Scene> scene) : Integrator(options, scene)
 {
 }
 
 PathTracer::~PathTracer()
 {
+    std::cout << "Deleting PathTracer" << std::endl;
 }
 
-Color PathTracer::render(Scene *scene, size_t x, size_t y, size_t sample)
+Color PathTracer::render(size_t x, size_t y, size_t sample)
 {
     // initialize the RNG in a deterministic way for each sample
     RNG rng;

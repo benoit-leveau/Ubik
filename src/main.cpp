@@ -1,69 +1,67 @@
-// #include <iostream>
-#include <vector>
+#include <memory>
 
 #include "options.hpp"
-#include "exrdriver.hpp"
-#include "displaydriver.hpp"
 #include "scene.hpp"
-#include "renderer/renderer.hpp"
+#include "renderer.hpp"
+#include "OptionParser.h"
 
 
-int main(int, char**argv)
+int main(int argc, char**argv)
 {
-    std::vector<OutputDriver *> output_list;
+    const std::string usage = "usage: %prog [OPTION]... DIR [FILE]...";
+    const std::string version = "%prog 1.0\nCopyright (C) 2015 Benoit Leveau\n";
+    
+    optparse::OptionParser parser = optparse::OptionParser()
+        .usage(usage)
+        .version(version);
+
+    parser.add_option("--interactive").action("store_true").help("Interactive mode");
+
+    optparse::OptionGroup group = optparse::OptionGroup(parser, "Global Options", "Sets the image size.");
+    group.add_option("-w", "--width").action("store").type("int").set_default(640).help("default: %default");
+    group.add_option("-h", "--height").action("store").type("int").set_default(480).help("default: %default");
+    group.add_option("-t", "--threads").action("store").type("int").set_default(8).help("Sets the number of threads. default: %default");
+    parser.add_option_group(group);
+    
+    optparse::OptionGroup group_tiled = optparse::OptionGroup(parser, "Tiled Renderer Options", "Options for the Tiled Renderer mode.");
+    group_tiled.add_option("--show-window").action("store_true").help("Show a render window.");
+    group_tiled.add_option("--bucket-size").action("int").set_default(64).help("Sets the bucket size. Defaults to %default.");
+    char const* const modes[] = { "spiral", "topleft" };
+    group_tiled.add_option("-m", "--mode").choices(&modes[0], &modes[1]).set_default("spiral").help("Sets the image mode.");
+    group_tiled.add_option("-o", "--output").action("store").type("string");
+    
+    group_tiled.add_option("--min-samples").action("store").type("int").set_default(0).help("Sets the minimum sampling. default: %default");
+    group_tiled.add_option("--max-samples").action("store").type("int").set_default(1).help("Sets the maximum sampling. default: %default");
+    parser.add_option_group(group_tiled);
+    
+    optparse::Values& parse_options = parser.parse_args(argc, argv);
+
+    std::cout << "width: " << int(parse_options.get("width")) << std::endl;
+    std::cout << "height: " << int(parse_options.get("height")) << std::endl;
+    std::cout << "interactive: " << bool(parse_options.get("interactive")) << std::endl;
+    std::cout << "bucket size: " << int(parse_options.get("bucket_size")) << std::endl;
 
     // render options
-    Options options(atoi(argv[1]), // width
-                    atoi(argv[2]), // height
-                    bool(atoi(argv[3])), // interactive
-                    bool(atoi(argv[4])), // show_window
-                    atoi(argv[5]), // bucketsize
-                    bool(atoi(argv[6])), // spiral mode
+    Options options(int(parse_options.get("width")),
+                    int(parse_options.get("height")),
+                    bool(parse_options.get("interactive")),
+                    bool(parse_options.get("show_window")),
+                    int(parse_options.get("bucket_size")),
+                    std::string(parse_options.get("mode")),
                     true, // path tracer
-                    true, // fixed sampling
-                    1, // min_samples
-                    atoi(argv[7]), // max_samples
-                    atoi(argv[8]), // nbthreads
-                    std::string(argv[9]));
+                    true, // fixed sampling,
+                    int(parse_options.get("min_samples")),
+                    int(parse_options.get("max_samples")),
+                    int(parse_options.get("nb_threads")),
+                    std::string(parse_options.get("output")));
 
     // read/construct scene 
-    Scene *scene = new Scene();
+    auto scene = std::make_shared<Scene>();
     scene->frame = 0;
-
-    // create display driver
-    DisplayDriver *display = NULL;
     
-    if (options.show_window || options.interactive)
-    {
-        display = new DisplayDriver(options.width, options.height);
-        output_list.push_back(display);
-    }
-
-    if (!options.interactive)
-    {
-        // create EXR driver
-        EXRDriver *exr_output = new EXRDriver(options.width, options.height, options.bucketsize, options.output_file);
-        output_list.push_back(exr_output);
-    }
-
-    Renderer *renderer = Renderer::create_renderer(scene, options);
-    renderer->run(output_list);
-
-    // close any output
-    for(auto &output : output_list)
-        output->close();
+    auto renderer = Renderer::create_renderer(scene, options);
+    renderer->run();
     
-    if (display && !options.interactive){
-        // when there is a display driver, wait for user interaction to quit
-        display->loop();
-    }
-
-    // Clean data
-    for(auto &output : output_list)
-        delete output;
-    delete renderer;
-    delete scene;
-	
 	return 0;
 }
 

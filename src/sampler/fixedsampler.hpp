@@ -10,6 +10,7 @@
 #define FIXEDSAMPLER_HPP
 
 #include <cstddef>
+#include <memory>
 #include "sampler.hpp"
 
 // forward declaration
@@ -22,10 +23,10 @@ class Scene;
 class FixedSampler : public Sampler
 {
 public:
-    FixedSampler(const Options &options);
+    FixedSampler(const Options &options, std::shared_ptr<Integrator> integrator);
     ~FixedSampler();
 
-    virtual Color render(Integrator *integrator, Scene *scene, size_t x, size_t y);
+    virtual Color render(size_t x, size_t y);
 private:
     size_t num_samples;
 };

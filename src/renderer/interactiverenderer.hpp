@@ -20,11 +20,11 @@ class DisplayDriver;
 class InteractiveRenderer : public Renderer
 {
 public:
-    InteractiveRenderer(Scene *scene, const Options &options);
+    InteractiveRenderer(std::shared_ptr<Scene> scene, const Options &options);
     virtual ~InteractiveRenderer();
 
-    virtual void run(std::vector<OutputDriver *>output_list);
-    DisplayDriver *display;
+    virtual void run();
+    std::unique_ptr<DisplayDriver> display;
 private:
 };
 

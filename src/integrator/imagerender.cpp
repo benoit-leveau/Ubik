@@ -31,7 +31,7 @@ struct ImageRenderData
 };
 
 
-ImageRenderData::ImageRenderData(const std::string &filename) : buf(NULL), raster(NULL), tiled(false)
+ImageRenderData::ImageRenderData(const std::string &filename) : buf(nullptr), raster(nullptr), tiled(false)
 {
     uint32 x, y;
     tif = TIFFOpen(filename.c_str(), "r");
@@ -76,17 +76,20 @@ ImageRenderData::~ImageRenderData()
     TIFFClose(tif);
 }
 
-ImageRender::ImageRender(const Options &options) : Integrator(options), add_noise(!options.interactive)
+ImageRender::ImageRender(const Options &options, std::shared_ptr<Scene> scene) : 
+    Integrator(options, scene),
+    add_noise(!options.interactive)
 {
     data = new ImageRenderData("/milk/users/benoit/personal/ubik/image.tx");
 }
 
 ImageRender::~ImageRender()
 {
+    std::cout << "Deleting ImageRender" << std::endl;
     delete data;
 }
 
-Color ImageRender::render(Scene *scene, size_t x, size_t y, size_t sample)
+Color ImageRender::render(size_t x, size_t y, size_t sample)
 {
     // initialize the RNG in a deterministic way for each sample
     RNG rng;

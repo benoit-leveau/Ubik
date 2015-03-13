@@ -11,23 +11,22 @@
 
 #include <cstddef>
 #include <random>
+#include <memory>
 
 // forward declaration
 class Sampler;
-class Integrator;
-class Scene;
 class Color;
 
 
 class Bucket
 {
 public:
-    Bucket(size_t xpos, size_t ypos, size_t index_x, size_t index_y, size_t bucketwidth, size_t bucketheight);
+    Bucket(std::shared_ptr<Sampler> sampler, size_t xpos, size_t ypos, size_t index_x, size_t index_y, size_t bucketwidth, size_t bucketheight);
     ~Bucket();
     
-    void render(Sampler *sampler, Integrator *integrator, Scene *scene);
-    void render_center(Sampler *sampler, Integrator *integrator, Scene *scene);
+    void render();
 
+    std::shared_ptr<Sampler> sampler;
     size_t xpos, ypos;
     size_t index_x, index_y;
     size_t bucketwidth, bucketheight;

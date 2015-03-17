@@ -19,7 +19,7 @@ Options::Options(size_t width, size_t height, bool interactive, bool show_window
     pathtracer(pathtracer),
     fixedsampling(fixedsampling),
     min_samples(min_samples),
-    max_samples(max_samples),
+    max_samples(std::max(min_samples, max_samples)),
     nbthreads(nbthreads),
     output_file(output_file)
 {}

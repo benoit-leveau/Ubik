@@ -81,12 +81,13 @@ InteractiveRenderer::InteractiveRenderer(std::shared_ptr<Scene> scene, const Opt
 
 InteractiveRenderer::~InteractiveRenderer()
 {
-    std::cout << "Deleting InteractiveRenderer" << std::endl;
 }
 
 void InteractiveRenderer::run()
 {
     std::vector<std::thread> threads;
+
+    std::cout << "Starting interactive render with " << nbthreads << " threads" << std::endl;
 
     for(size_t thread_index=0; thread_index<nbthreads; ++thread_index)
     {

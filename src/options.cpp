@@ -6,6 +6,7 @@
 
 */
 
+#include <thread>
 
 #include "options.hpp"
 
@@ -20,7 +21,7 @@ Options::Options(size_t width, size_t height, bool interactive, bool show_window
     fixedsampling(fixedsampling),
     min_samples(min_samples),
     max_samples(std::max(min_samples, max_samples)),
-    nbthreads(nbthreads),
+    nbthreads(nbthreads>0 ? nbthreads : std::thread::hardware_concurrency()),
     output_file(output_file)
-{}
-
+{
+}

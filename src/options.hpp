@@ -32,7 +32,4 @@ public:
     std::string output_file;
 };
 
-
-
-
 #endif // !OPTIONS_HPP

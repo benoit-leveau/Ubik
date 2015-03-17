@@ -137,6 +137,8 @@ void TiledRenderer::run()
     // start chrono
     auto t_start = std::chrono::high_resolution_clock::now();
     
+    std::cout << "Starting bucket render with " << nbthreads << " threads" << std::endl;
+
     // create the thread pool
     ctpl::thread_pool pool(nbthreads);
 

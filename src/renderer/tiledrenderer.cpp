@@ -56,6 +56,10 @@ TiledRenderer::TiledRenderer(std::shared_ptr<Scene> scene, const Options &option
         EXRDriver *exr_output = new EXRDriver(options.width, options.height, options.bucketsize, options.output_file);
         output_list.push_back(exr_output);
     }
+    else if (!options.show_window)
+    {
+        std::cout << "Warning! No output defined, and show_window option not set." << std::endl;
+    }
 
     // create list of buckets
     for (size_t y=0, bucket_y=0; y<height; y+=bucketsize, ++bucket_y){

@@ -42,7 +42,6 @@ void EXRDriver::close()
 
 EXRDriver::~EXRDriver()
 {
-    std::cout << "Deleting EXRDriver" << std::endl;
     this->close();
 }
 

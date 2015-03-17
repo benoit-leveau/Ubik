@@ -140,8 +140,6 @@ void DisplayDriver::loop()
 
 DisplayDriver::~DisplayDriver()
 {
-    std::cout << "Deleting DisplayDriver" << std::endl;
-
     delete [] pixeldata;
 
 	//Clean up our objects and quit

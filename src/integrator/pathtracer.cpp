@@ -21,7 +21,6 @@ PathTracer::PathTracer(const Options &options, std::shared_ptr<Scene> scene) : I
 
 PathTracer::~PathTracer()
 {
-    std::cout << "Deleting PathTracer" << std::endl;
 }
 
 Color PathTracer::render(size_t x, size_t y, size_t sample)

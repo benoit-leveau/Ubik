@@ -24,7 +24,7 @@ class Sampler
 {
 public:
     Sampler(const Options &options, std::shared_ptr<Integrator> integrator);
-    virtual ~Sampler(){std::cout << "Deleting Sampler" << std::endl;}
+    virtual ~Sampler(){}
 
     virtual Color render(size_t x, size_t y) = 0;
 

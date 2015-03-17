@@ -85,7 +85,6 @@ ImageRender::ImageRender(const Options &options, std::shared_ptr<Scene> scene) :
 
 ImageRender::~ImageRender()
 {
-    std::cout << "Deleting ImageRender" << std::endl;
     delete data;
 }
 

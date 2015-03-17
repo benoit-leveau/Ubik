@@ -21,7 +21,6 @@ FixedSampler::FixedSampler(const Options &options, std::shared_ptr<Integrator> i
 
 FixedSampler::~FixedSampler()
 {
-    std::cout << "Deleting FixedSampler" << std::endl;
 }
 
 Color FixedSampler::render(size_t x, size_t y)

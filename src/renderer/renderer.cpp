@@ -34,7 +34,6 @@ Renderer::Renderer(std::shared_ptr<Scene> scene, const Options &options) :
 
 Renderer::~Renderer()
 {
-    std::cout << "Deleting Renderer" << std::endl;
 }
 
 std::unique_ptr<Renderer> Renderer::create_renderer(std::shared_ptr<Scene> scene, const Options &options)

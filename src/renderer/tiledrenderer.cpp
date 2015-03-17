@@ -117,7 +117,6 @@ TiledRenderer::TiledRenderer(std::shared_ptr<Scene> scene, const Options &option
 
 TiledRenderer::~TiledRenderer()
 {
-    std::cout << "Deleting TiledRenderer" << std::endl;
     for(auto &task : task_list)
         delete task;
     for(auto &bucket : bucket_list)

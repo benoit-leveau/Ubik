@@ -17,5 +17,4 @@ Integrator::Integrator(const Options &options, std::shared_ptr<Scene> scene) : w
 
 Integrator::~Integrator()
 {
-    std::cout << "Deleting Integrator" << std::endl;
 }

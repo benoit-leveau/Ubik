@@ -26,50 +26,87 @@
 
 #include <cmath>
 
-std::atomic<int> current_pixel = ATOMIC_VAR_INIT(16);
+struct Bucket
+{
+    Bucket(size_t pos_x, size_t pos_y, size_t size_x, size_t size_y) : 
+        pos_x(pos_x), pos_y(pos_y), size_x(size_x), size_y(size_y), sample(0), color(0,0,0), copied(false)
+    {
+        center_x = pos_x + size_x / 2;
+        center_y = pos_y + size_y / 2;
+    }
+
+    size_t pos_x, pos_y;
+    size_y size_x, size_y;
+    size_t center_x, center_y;
+
+    Color color;
+    size_t scene_version;
+    bool copied;
+};
+
+std::atomic<int> scene_version = ATOMIC_VAR_INIT(0);
+std::atomic<int> current_bucket = ATOMIC_VAR_INIT(0);
 volatile bool threads_stop = false;
+std::vector<Bucket *> bucket_list;
+
+void InteractiveRenderer::create_buckets()
+{    
+    size_t level = 0;
+    size_t current = 0;
+    size_t width_level = this->width;
+    size_t height_level = this->height;
+    size_t bucket_offset = 0;
+    while(true)
+    {
+        current += pow(4,level);
+        if (pixel_index < int(current))
+        {
+            break;
+        }
+        bucket_offset = current;
+        ++level;
+        width_level = width_level / 2;
+        height_level = height_level / 2;
+        for (size_t bucket_index_y=0; bucket_index_y<int(pow(2, level)); ++bucket_index_y)
+        {
+            for (size_t bucket_index_x=0; bucket_index_x<int(pow(2, level)); ++bucket_index_x)
+            {
+                posx = bucket_index_x * sizex;
+                posy = bucket_index_y * sizey;
+                center_x = pos_x + width_level / 2;
+                center_y = pos_y + height_level / 2;
+                bucket_list.push_back(new Bucket(posx, posy, width_level, height_level));
+            }
+        }
+    }
+}
 
 void render_loop(size_t thread_index, InteractiveRenderer *renderer)
 {
     while (not threads_stop)
     {
-        int pixel_index = std::atomic_fetch_add(&current_pixel, 1);
-        size_t level = 0;
-        size_t current = 0;
-        size_t width_level = renderer->width;
-        size_t height_level = renderer->height;
-        size_t bucket_index = 0;
-        size_t bucket_offset = 0;
-        while(true)
+        int bucket_index = std::atomic_fetch_add(&current_bucket, 1);
+        if (bucket_index == -1)
         {
-            current += pow(4,level);
-            if (pixel_index < int(current))
-            {
-                break;
-            }
-            bucket_offset = current;
-            ++level;
-            width_level = width_level / 2;
-            height_level = height_level / 2;
+            usleep(10);
+            continue;
         }
-        bucket_index = pixel_index - bucket_offset;
-        size_t bucket_index_y = bucket_index / int(pow(2, level));
-        size_t bucket_index_x = bucket_index % int(pow(2, level));
-        size_t pos_x = bucket_index_x * width_level;
-        size_t pos_y = bucket_index_y * height_level;
-        size_t center_x = pos_x + width_level / 2;
-        size_t center_y = pos_y + height_level / 2;
-        Color result = renderer->sampler->render(center_x, center_y);
-        // store the result somewhere, along with number of samples, and scene iteration count
+        Bucket *bucket = bucket_list[bucket_index];
+
+        // retrieve the current version of the scene
+        int my_scene_version = scene_version.load();
+
+        Color result = renderer->sampler->render(bucket->center_x, bucket->center_y);
         
-        // main thread should update image
-        for (size_t y=pos_y; y<pos_y+height_level; ++y)
+        // 
+        if (my_scene_version != scene_version.load())
         {
-            for (size_t x=pos_x; x<pos_x+width_level; ++x)
-            {
-                renderer->display->write_pixel(x, y, result);
-            }
+            // ditch the result, it was computed for an earlier version of the scene
+            continue;
         }
+
+        // store the result somewhere, along with number of samples, and scene iteration count
+        bucket->color = result;
     }
 }
 
@@ -85,6 +122,8 @@ InteractiveRenderer::~InteractiveRenderer()
 
 void InteractiveRenderer::run()
 {
+    create_buckets();
+
     std::vector<std::thread> threads;
 
     std::cout << "Starting interactive render with " << nbthreads << " threads" << std::endl;
@@ -116,11 +155,18 @@ void InteractiveRenderer::run()
                 skip_sleep = true;
                 if (mouse_button_down)
                 {
-                    scene->x -= e.motion.xrel;
-                    scene->y -= e.motion.yrel;
-                    // restart from 0
-                    std::atomic_store(&current_pixel, 16);
-                    display->clear();
+                    std::atomic_store(&current_pixel, -1);
+                    scene->x += e.motion.xrel;
+                    scene->y += e.motion.yrel;
+                    std::atomic_fetch_add(&scene_version, 1);
+                    for(auto &bucket : bucket_list){
+                        bucket->color = Color(0,0,0);
+                        bucket->scene_version = scene_version;
+                        bucket->sample = 0;
+                        bucket->copied = false;
+                    }
+                    std::atomic_store(&current_pixel, 0);
+                    //display->clear();
                     //display->update();
                     //continue;
                 }
@@ -132,6 +178,21 @@ void InteractiveRenderer::run()
             if (e.type == SDL_KEYDOWN)
             {
                 break;
+            }
+        }
+        
+        for(auto &bucket : bucket_list)
+        {
+            if (bucket->sample>0 && !bucket->copied)
+            {
+                for (size_t y=bucket->pos_y; y<bucket->pos_y+bucket->size_y; ++y)
+                {
+                    for (size_t x=bucket->pos_x; x<bucket->pos_x+bucket->size_x; ++x)
+                    {
+                        this->display->write_pixel(x, y, bucket->color);
+                    }
+                }
+                bucket->copied = true;
             }
         }
         display->update();

@@ -50,9 +50,12 @@ TiledRenderer::TiledRenderer(std::shared_ptr<Scene> scene, const Options &option
         output_list.push_back(display);
     }
 
-    // create EXR driver
-    EXRDriver *exr_output = new EXRDriver(options.width, options.height, options.bucketsize, options.output_file);
-    output_list.push_back(exr_output);
+    if (options.output_file.size() > 0)
+    {
+        // create EXR driver
+        EXRDriver *exr_output = new EXRDriver(options.width, options.height, options.bucketsize, options.output_file);
+        output_list.push_back(exr_output);
+    }
 
     // create list of buckets
     for (size_t y=0, bucket_y=0; y<height; y+=bucketsize, ++bucket_y){

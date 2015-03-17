@@ -98,8 +98,8 @@ Color ImageRender::render(size_t x, size_t y, size_t sample)
     // ...
 
     // convert (x, y) into image coordinates
-    int img_x = x + scene->x;
-    int img_y = y + scene->x;
+    int img_x = x - scene->x;
+    int img_y = y - scene->y;
     if ((img_x < 0) || (img_y < 0) || (img_x >= int(this->width)) || (img_y >= int(this->height)))
     {
         return Color(0, 0, 0);

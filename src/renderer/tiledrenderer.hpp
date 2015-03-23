@@ -20,6 +20,7 @@ class Bucket;
 class Task;
 class OutputDriver;
 class DisplayDriver;
+enum class ArrayIterationMode;
 
 class TiledRenderer : public Renderer
 {
@@ -34,6 +35,7 @@ private:
     std::list<Task *>task_list;
     std::vector<OutputDriver *>output_list;
     DisplayDriver *display;
+    ArrayIterationMode image_mode;
 };
 
 #endif // !TILEDRENDERER_H

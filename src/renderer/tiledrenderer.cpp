@@ -19,6 +19,7 @@
 #include "task.hpp"
 #include "bucket.hpp"
 #include "options.hpp"
+#include "arrayiterator.hpp"
 
 
 void render_task(size_t threadid, Task *task)
@@ -42,8 +43,20 @@ void render_task(size_t threadid, Task *task)
 TiledRenderer::TiledRenderer(std::shared_ptr<Scene> scene, const Options &options) : 
     Renderer(scene, options),
     bucketsize(options.bucketsize),
-    display(nullptr)
+    display(nullptr),
+    image_mode(ArrayIterationMode::BOTTOMLEFT)
 {
+    if (options.image_mode == "topleft")
+        image_mode = ArrayIterationMode::TOPLEFT;
+    else if (options.image_mode == "topright")
+        image_mode = ArrayIterationMode::TOPRIGHT;
+    else if (options.image_mode == "bottomleft")
+        image_mode = ArrayIterationMode::BOTTOMLEFT;
+    else if (options.image_mode == "bottomright")
+        image_mode = ArrayIterationMode::BOTTOMRIGHT;
+    else if (options.image_mode == "spiral")
+        image_mode = ArrayIterationMode::SPIRAL;
+
     if (options.show_window)
     {
         display = new DisplayDriver(options.width, options.height);
@@ -73,52 +86,14 @@ TiledRenderer::TiledRenderer(std::shared_ptr<Scene> scene, const Options &option
         }
     }
 
-    if (options.image_mode == std::string("spiral"))
-    {
-        std::vector<Bucket *> bucket_list_spiral;
-        int number_tiles_x = ceil(width / float(bucketsize));
-        int number_tiles_y = ceil(height / float(bucketsize));
-        int dx = 0;
-        int dy = -1;
-        int x = (width/bucketsize-1)/2;
-        int y = (height/bucketsize-1)/2;
-        size_t length = 1;
-        size_t current_length = 0;
-        size_t iterations = 0;
-        size_t index = 0;
-        while(index<bucket_list.size())
-        {
-            if ((x>=0) and (x<number_tiles_x) and (y>=0) and (y<number_tiles_y))
-            {
-                bucket_list_spiral.push_back(bucket_list[y*number_tiles_x+x]);
-                ++index;
-            }
-            if (current_length == length)
-            {
-                // we're at a corner
-                iterations += 1;
-                current_length = 0;
-                // switch direction
-                int tmp = dx;
-                dx = -dy;
-                dy = tmp;
-            }
-            if (iterations == 2)
-            {
-                length += 1;
-                iterations = 0;
-            }
-            current_length += 1;
-            x += dx;
-            y += dy;
-        }
-        std::swap(bucket_list, bucket_list_spiral);
-    }
-
     // create list of tasks
-    for(auto &bucket : bucket_list){
-        Task *task = new Task(bucket);
-        task_list.push_back(task);   
+    int number_tiles_x = ceil(float(width) / float(bucketsize));
+    int number_tiles_y = ceil(float(height) / float(bucketsize));
+    ArrayIterator it(number_tiles_x, number_tiles_y, image_mode);
+    while(it.valid)
+    {
+        Task *task = new Task(bucket_list[it.next_1d()]);
+        task_list.push_back(task);
     }
 }
 

@@ -80,7 +80,7 @@ ImageRender::ImageRender(const Options &options, std::shared_ptr<Scene> scene) :
     Integrator(options, scene),
     add_noise(!options.interactive)
 {
-    data = new ImageRenderData("/milk/users/benoit/personal/ubik/image.tx");
+    data = new ImageRenderData("/milk/users/benoit/pwork/ubik/image.tx");
 }
 
 ImageRender::~ImageRender()

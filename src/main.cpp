@@ -26,8 +26,8 @@ int main(int argc, char**argv)
     optparse::OptionGroup group_tiled = optparse::OptionGroup(parser, "Tiled Renderer Options");
     group_tiled.add_option("--show-window").action("store_true").help("Show a render window.");
     group_tiled.add_option("--bucket-size").action("int").set_default(64).help("Sets the bucket size. default: %default");
-    char const* const modes[] = { "spiral", "topleft" };
-    group_tiled.add_option("-m", "--mode").choices(&modes[0], &modes[2]).set_default("spiral").help("Sets the bucket order mode. default: %default");
+    char const* const modes[] = { "topleft", "topright", "bottomleft", "bottomright", "spiral" };
+    group_tiled.add_option("-m", "--mode").choices(&modes[0], &modes[5]).set_default("spiral").help("Sets the bucket order mode. default: %default");
     group_tiled.add_option("-o", "--output").action("store").type("string");
     
     group_tiled.add_option("--min-samples").action("store").type("int").set_default(0).help("Sets the minimum sampling. default: %default");

@@ -32,6 +32,10 @@ std::atomic<int> current_bucket = ATOMIC_VAR_INIT(0);
 volatile bool threads_stop = false;
 std::vector<Bucket *> bucket_list;
 
+// TODO: add level to the LowPixel so we don't overwrite pixels in the image with coarser levels
+// TODO: figure out where the white lines come from in the HighPixel: happens also with just one thread -> coming from the write() function?
+// TODO: improve synchronization between threads/buckets/etc.
+
 struct Pixel
 {
     //std::atomic<int> sample;

@@ -69,7 +69,7 @@ struct HighBucket : Bucket
         Bucket(integrator, pos_x, pos_y, bucket_width, bucket_height)//,sample(0)
     {
         bucketdata = new Pixel[bucket_width*bucket_height]();
-        bucket_sample = ATOMIC_VAR_INIT(0);
+        bucket_sample = 0; // ATOMIC_VAR_INIT(0);
         bucket_lock = ATOMIC_VAR_INIT(0);
     }
 
@@ -78,7 +78,7 @@ struct HighBucket : Bucket
         int expected = 0;
         while (std::atomic_compare_exchange_weak(&bucket_lock, &expected, 1))
             usleep(5);
-        int sample = bucket_sample.load();
+        // int sample = bucket_sample.load();
         int my_scene_version = global_scene_version.load();
         for (size_t y=0; y<bucket_height; ++y)
         {
@@ -99,7 +99,8 @@ struct HighBucket : Bucket
         //if (my_scene_version != global_scene_version.load())
         //    return;
         // ++sample;
-        std::atomic_fetch_add(&bucket_sample, 1);
+        ++bucket_sample;
+        // std::atomic_fetch_add(&bucket_sample, 1);
         copied = false;
         completed = true;
         scene_version = my_scene_version;
@@ -108,6 +109,9 @@ struct HighBucket : Bucket
 
     virtual void reset()
     {
+        int expected = 0;
+        while (std::atomic_compare_exchange_weak(&bucket_lock, &expected, 1))
+            usleep(5);
         this->Bucket::reset();
         // sample = 0;
         for (size_t y=0; y<bucket_height; ++y)
@@ -119,12 +123,16 @@ struct HighBucket : Bucket
                 pixel.color = Color();
             }
         }
-        std::atomic_store(&bucket_sample, 0);
+        bucket_sample = 0;// std::atomic_store(&bucket_sample, 0);
+        std::atomic_store(&bucket_lock, 0);
     }
 
     virtual void write(DisplayDriver *driver)
     {
-        int current_sample = bucket_sample.load();
+        int expected = 0;
+        while (std::atomic_compare_exchange_weak(&bucket_lock, &expected, 1))
+            usleep(5);
+        // int current_sample = bucket_sample.load();
         for (size_t y=0; y<bucket_height; ++y)
         {
             for (size_t x=0; x<bucket_width; ++x)
@@ -132,14 +140,16 @@ struct HighBucket : Bucket
                 Pixel &pixel(bucketdata[y*bucket_width+x]);
                 // int current_sample = pixel.sample.load();
                 Color color = pixel.color;
-                color /= float(current_sample);
+                color /= float(bucket_sample);
                 driver->write_pixel(x+pos_x, y+pos_y, color);
             }
         }
+        std::atomic_store(&bucket_lock, 0);
     }
 
     Pixel *bucketdata;
-    std::atomic<int> bucket_sample;
+    // std::atomic<int> bucket_sample;
+    volatile int bucket_sample;
     std::atomic<int> bucket_lock;
     // std::atomic<int> sample;
     // size_t sample;

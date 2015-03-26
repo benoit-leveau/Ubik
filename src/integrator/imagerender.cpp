@@ -78,7 +78,7 @@ ImageRenderData::~ImageRenderData()
 
 ImageRender::ImageRender(const Options &options, std::shared_ptr<Scene> scene) : 
     Integrator(options, scene),
-    add_noise(!options.interactive)
+    add_noise(true) // !options.interactive)
 {
     data = new ImageRenderData("/milk/users/benoit/pwork/ubik/image.tx");
 }
@@ -130,11 +130,16 @@ Color ImageRender::render(size_t x, size_t y, size_t sample)
         float r = TIFFGetR(abgr) / 255.0;
         float g = TIFFGetG(abgr) / 255.0;
         float b = TIFFGetB(abgr) / 255.0;
+        float noise = 0.0f;
+        for (size_t index=0; index<50; ++index)
+        {
+            noise = std::max(0.0, std::min(1.0, noise+rng()-0.5));
+        }
         if (add_noise)
         {
-            r += rng()*0.3;
-            g += rng()*0.3;
-            b += rng()*0.3;
+            r = std::max(0.0, std::min(1.0, r + (noise-0.5)*0.3));
+            g = r + (g-r) * std::min(1.0, (sample/10.0));
+            b = r + (b-r) * std::min(1.0, (sample/10.0));
         }
         return Color(r, g, b);
     }

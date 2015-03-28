@@ -19,6 +19,7 @@ fi
 
 
 if [ "$DIST" == "Darwin" ]; then
+OPTIONS="$OPTIONS -DOSX=1"
 SDL_HEADER_DIR="-I/Library/Frameworks/SDL2.framework/Headers"
 GCC48_LIB_DIR=
 TIFF_HEADER_DIR="-I/Users/benoit/Documents/Prog/libs/include/tiff"
@@ -27,6 +28,7 @@ OPENEXR_HEADER_DIR="-I/Users/benoit/Documents/Prog/libs/include/OpenEXR -I/Users
 SDL_LIB_DIR="-framework SDL2"
 TIFF_LINK="-ltiff"
 else
+OPTIONS="$OPTIONS -DLINUX=1"
 SDL_HEADER_DIR="-I/milk/code/central/include/SDL/2.0/SDL2/"
 OPENEXR_HEADER_DIR="-I/milk/code/central/include/OpenEXR/2.0.1/"
 GCC48_LIB_DIR="-L/milk/code/central/lib/centos6/gcc-4.8.4/"

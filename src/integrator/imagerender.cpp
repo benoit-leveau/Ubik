@@ -80,7 +80,11 @@ ImageRender::ImageRender(const Options &options, std::shared_ptr<Scene> scene) :
     Integrator(options, scene),
     add_noise(true) // !options.interactive)
 {
+#ifdef LINUX
     data = new ImageRenderData("/milk/users/benoit/pwork/ubik/image.tx");
+#elif OSX
+    data = new ImageRenderData("/Users/benoit/Documents/Prog/ubik/bin/image.tiff");
+#endif
 }
 
 ImageRender::~ImageRender()

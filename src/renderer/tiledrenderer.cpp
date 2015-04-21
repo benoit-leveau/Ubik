@@ -90,7 +90,7 @@ TiledRenderer::TiledRenderer(std::shared_ptr<Scene> scene, const Options &option
     int number_tiles_x = ceil(float(width) / float(bucketsize));
     int number_tiles_y = ceil(float(height) / float(bucketsize));
     ArrayIterator it(number_tiles_x, number_tiles_y, image_mode);
-    while(it.valid)
+    while (it.valid)
     {
         Task *task = new Task(bucket_list[it.next_1d()]);
         task_list.push_back(task);

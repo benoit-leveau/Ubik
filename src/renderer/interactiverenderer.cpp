@@ -19,62 +19,239 @@
 #include "interactiverenderer.hpp"
 #include "outputdriver.hpp"
 #include "displaydriver.hpp"
+#include "integrator.hpp"
 #include "scene.hpp"
-#include "sampler.hpp"
 #include "color.hpp"
 #include "options.hpp"
+#include "arrayiterator.hpp"
 
 #include <cmath>
 
-std::atomic<int> current_pixel = ATOMIC_VAR_INIT(16);
+std::atomic<int> global_scene_version = ATOMIC_VAR_INIT(0);
+std::atomic<int> current_bucket = ATOMIC_VAR_INIT(0);
 volatile bool threads_stop = false;
+std::vector<Bucket *> bucket_list;
 
-void render_loop(size_t thread_index, InteractiveRenderer *renderer)
+// TODO: add level to the LowPixel so we don't overwrite pixels in the image with coarser levels
+
+struct Pixel
 {
-    while (not threads_stop)
+    Color color;
+    int sample;
+    Pixel() : sample(0){}
+};
+
+struct Bucket
+{
+    Bucket(std::shared_ptr<Integrator> integrator, size_t pos_x, size_t pos_y, size_t bucket_width, size_t bucket_height) : integrator(integrator), pos_x(pos_x), pos_y(pos_y), bucket_width(bucket_width), bucket_height(bucket_height), copied(false), completed(false), scene_version(-1)
+    {}
+
+    virtual void render() = 0;
+    virtual void write(DisplayDriver *driver) = 0;
+    virtual void reset()
     {
-        int pixel_index = std::atomic_fetch_add(&current_pixel, 1);
-        size_t level = 0;
-        size_t current = 0;
-        size_t width_level = renderer->width;
-        size_t height_level = renderer->height;
-        size_t bucket_index = 0;
-        size_t bucket_offset = 0;
-        while(true)
+        copied = false;
+        completed = false;
+    }
+
+    std::shared_ptr<Integrator> integrator;
+    size_t pos_x, pos_y;
+    size_t bucket_width, bucket_height;
+    bool copied;
+    bool completed;
+    int scene_version;
+};
+
+struct HighBucket : Bucket
+{
+    HighBucket(std::shared_ptr<Integrator> integrator, size_t pos_x, size_t pos_y, size_t bucket_width, size_t bucket_height) : 
+        Bucket(integrator, pos_x, pos_y, bucket_width, bucket_height)
+    {
+        bucketdata = new Pixel[bucket_width*bucket_height]();
+        bucket_lock = ATOMIC_VAR_INIT(0);
+    }
+
+    virtual void render()
+    {
+        int expected = 0;
+        while (std::atomic_compare_exchange_strong(&bucket_lock, &expected, 1))
         {
-            current += pow(4,level);
-            if (pixel_index < int(current))
-            {
-                break;
-            }
-            bucket_offset = current;
-            ++level;
-            width_level = width_level / 2;
-            height_level = height_level / 2;
+            expected = 0;
+            usleep(5);
         }
-        bucket_index = pixel_index - bucket_offset;
-        size_t bucket_index_y = bucket_index / int(pow(2, level));
-        size_t bucket_index_x = bucket_index % int(pow(2, level));
-        size_t pos_x = bucket_index_x * width_level;
-        size_t pos_y = bucket_index_y * height_level;
-        size_t center_x = pos_x + width_level / 2;
-        size_t center_y = pos_y + height_level / 2;
-        Color result = renderer->sampler->render(center_x, center_y);
-        // store the result somewhere, along with number of samples, and scene iteration count
-        
-        // main thread should update image
-        for (size_t y=pos_y; y<pos_y+height_level; ++y)
+        int my_scene_version = global_scene_version.load();
+        for (size_t y=0; y<bucket_height; ++y)
         {
-            for (size_t x=pos_x; x<pos_x+width_level; ++x)
+            //if (my_scene_version != global_scene_version.load())
+            //{
+            //    std::atomic_store(&bucket_lock, 0);
+            //    return;
+            //}
+            for (size_t x=0; x<bucket_width; ++x)
             {
-                renderer->display->write_pixel(x, y, result);
+                if (threads_stop)
+                    return;
+                size_t offset = y*bucket_width+x;
+                Pixel &pixel(bucketdata[offset]);
+                pixel.color += integrator->render(x+pos_x, y+pos_y, pixel.sample);
+                pixel.sample += 1;
             }
+        }
+        copied = false;
+        completed = true;
+        scene_version = my_scene_version;
+        std::atomic_store(&bucket_lock, 0);
+    }
+
+    virtual void reset()
+    {
+        int expected = 0;
+        while (std::atomic_compare_exchange_strong(&bucket_lock, &expected, 1))
+        {
+            expected = 0;
+            usleep(5);
+        }
+        this->Bucket::reset();
+        // sample = 0;
+        for (size_t y=0; y<bucket_height; ++y)
+        {
+            for (size_t x=0; x<bucket_width; ++x)
+            {
+                Pixel &pixel(bucketdata[y*bucket_width+x]);
+                pixel.color = Color();
+                pixel.sample = 0;
+            }
+        }
+        std::atomic_store(&bucket_lock, 0);
+    }
+
+    virtual void write(DisplayDriver *driver)
+    {
+        int expected = 0;
+        while (std::atomic_compare_exchange_strong(&bucket_lock, &expected, 1))
+        {
+            expected = 0;
+            usleep(5);
+        }
+        for (size_t y=0; y<bucket_height; ++y)
+        {
+            for (size_t x=0; x<bucket_width; ++x)
+            {
+                Pixel &pixel(bucketdata[y*bucket_width+x]);
+                Color color = pixel.color;
+                color /= float(pixel.sample);
+                driver->write_pixel(x+pos_x, y+pos_y, color);
+            }
+        }
+        std::atomic_store(&bucket_lock, 0);
+    }
+
+    Pixel *bucketdata;
+    std::atomic<int> bucket_lock;
+};
+
+struct LowBucket : Bucket
+{
+    LowBucket(std::shared_ptr<Integrator> integrator, size_t pos_x, size_t pos_y, size_t bucket_width, size_t bucket_height) : 
+        Bucket(integrator, pos_x, pos_y, bucket_width, bucket_height),
+        color(0, 0, 0)
+    {
+        center_x = pos_x + bucket_width / 2;
+        center_y = pos_y + bucket_height / 2;
+    }
+
+    virtual void render()
+    {
+        int my_scene_version = global_scene_version.load();
+        color = integrator->render(center_x, center_y, 0);
+        copied = false;
+        completed = true;
+        scene_version = my_scene_version;
+    }
+
+    virtual void write(DisplayDriver *driver)
+    {
+        for (size_t y=pos_y; y<pos_y+bucket_height; ++y)
+            for (size_t x=pos_x; x<pos_x+bucket_width; ++x)
+                driver->write_pixel(x, y, color);
+    }
+
+    size_t center_x, center_y;
+    Color color;
+};
+
+Bucket *create_bucket(std::shared_ptr<Integrator> integrator, size_t pos_x, size_t pos_y, size_t bucket_width, size_t bucket_height, bool high)
+{
+    if (high)
+        return new HighBucket(integrator, pos_x, pos_y, bucket_width, bucket_height);
+    else
+        return new LowBucket(integrator, pos_x, pos_y, bucket_width, bucket_height);
+}
+
+void InteractiveRenderer::create_buckets()
+{
+    size_t bucket_size = 32;
+    bool highres = false;
+    while(true)
+    {
+        int number_tiles_x = ceil(float(width) / float(bucket_size));
+        int number_tiles_y = ceil(float(height) / float(bucket_size));
+        if (highres)
+            full_tiles = number_tiles_x * number_tiles_y;
+        ArrayIterator it(number_tiles_x, number_tiles_y, ArrayIterationMode::SPIRAL);
+        while (it.valid)
+        {
+            auto pair = it.next();
+            size_t pos_x = pair.first * bucket_size;
+            size_t pos_y = pair.second * bucket_size;
+            bucket_list.push_back(create_bucket(integrator,
+                                                pos_x,
+                                                pos_y,
+                                                std::min(bucket_size, width-pos_x),
+                                                std::min(bucket_size, height-pos_y),
+                                                highres));
+        }
+        if (highres)
+            break;
+        if (bucket_size > 8)
+            bucket_size /= 2;
+        else
+        {
+            progressive_tiles = bucket_list.size();
+            highres = true;
+            bucket_size = this->bucketsize;
         }
     }
 }
 
+void render_loop(size_t /*thread_index*/, InteractiveRenderer *renderer)
+{
+    size_t max_size = bucket_list.size();
+    while (not threads_stop)
+    {
+        int bucket_index = std::atomic_fetch_add(&current_bucket, 1);
+        if (bucket_index == -1) //  || bucket_index >= int(max_size))
+        {
+            usleep(5);
+            continue;
+        }
+        
+        if (bucket_index >= (renderer->progressive_tiles+renderer->full_tiles))
+        {
+            bucket_index = renderer->progressive_tiles + (bucket_index - renderer->progressive_tiles) % renderer->full_tiles;
+        }
+
+        Bucket *bucket = bucket_list[bucket_index];
+        bucket->render();
+        //bucket->write(renderer->display.get());
+    }
+}
+
 InteractiveRenderer::InteractiveRenderer(std::shared_ptr<Scene> scene, const Options &options) :
-    Renderer(scene, options)
+    Renderer(scene, options),
+    bucketsize(options.bucketsize),
+    progressive_tiles(0),
+    full_tiles(0)
 {
     display = std::unique_ptr<DisplayDriver>(new DisplayDriver(options.width, options.height));
 }
@@ -85,6 +262,10 @@ InteractiveRenderer::~InteractiveRenderer()
 
 void InteractiveRenderer::run()
 {
+    int scene_version = 0;
+
+    create_buckets();
+
     std::vector<std::thread> threads;
 
     std::cout << "Starting interactive render with " << nbthreads << " threads" << std::endl;
@@ -95,11 +276,14 @@ void InteractiveRenderer::run()
     }
 
     bool mouse_button_down = false;
-    while(true)
+    bool quit = false;
+    while(!quit)
     {
+        auto t_start = std::chrono::high_resolution_clock::now();
         bool skip_sleep = false;
         SDL_Event e;
-        if (SDL_PollEvent(&e))
+        bool reset_scene = false;
+        while (SDL_PollEvent(&e))
         {
             if (e.type == SDL_MOUSEBUTTONDOWN)
             {
@@ -116,26 +300,49 @@ void InteractiveRenderer::run()
                 skip_sleep = true;
                 if (mouse_button_down)
                 {
-                    scene->x -= e.motion.xrel;
-                    scene->y -= e.motion.yrel;
-                    // restart from 0
-                    std::atomic_store(&current_pixel, 16);
-                    display->clear();
-                    //display->update();
-                    //continue;
+                    reset_scene = true;
+                    std::atomic_store(&current_bucket, -1);
+                    scene->x += e.motion.xrel;
+                    scene->y += e.motion.yrel;
+                    std::atomic_fetch_add(&global_scene_version, 1);
+                    scene_version = global_scene_version.load();
+                    for(auto &bucket : bucket_list){
+                        bucket->reset();
+                    }
+                    std::atomic_store(&current_bucket, 0);
                 }
             }
             if (e.type == SDL_QUIT)
             {
+                quit = true;
                 break;
             }
-            if (e.type == SDL_KEYDOWN)
-            {
-                break;
-            }
+            //if (e.type == SDL_KEYDOWN)
+            //{
+            //    break;
+            //}
         }
-        display->update();
-        if (not skip_sleep)
+        if (quit)
+            break;
+        //if (reset_scene)
+        //    display->clear();
+        bool updated = false;
+        for(auto &bucket : bucket_list)
+        {
+            if (bucket->completed && !bucket->copied && scene_version==bucket->scene_version)
+            {
+                bucket->write(this->display.get());
+                bucket->copied = true;
+                updated = true;                
+            }
+            auto t_end = std::chrono::high_resolution_clock::now();
+            double time = std::chrono::duration<double, std::milli>(t_end-t_start).count();
+            if (updated && time > 20)
+                break;
+        }
+        if (updated)
+            display->update();
+        else
             usleep(20);
     }
 

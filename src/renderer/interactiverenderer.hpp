@@ -25,7 +25,11 @@ public:
 
     virtual void run();
     std::unique_ptr<DisplayDriver> display;
+    size_t progressive_tiles;
+    size_t full_tiles;
 private:
+    size_t bucketsize;
+    void create_buckets();
 };
 
 #endif // !INTERACTIVERENDERER_H

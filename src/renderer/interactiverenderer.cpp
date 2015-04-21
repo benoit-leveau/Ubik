@@ -33,17 +33,12 @@ volatile bool threads_stop = false;
 std::vector<Bucket *> bucket_list;
 
 // TODO: add level to the LowPixel so we don't overwrite pixels in the image with coarser levels
-// TODO: figure out where the white lines come from in the HighPixel: happens also with just one thread -> coming from the write() function?
-// TODO: improve synchronization between threads/buckets/etc.
 
 struct Pixel
 {
-    //std::atomic<int> sample;
     Color color;
-    Pixel()
-    {
-        //sample = ATOMIC_VAR_INIT(0);
-    }
+    int sample;
+    Pixel() : sample(0){}
 };
 
 struct Bucket
@@ -70,41 +65,38 @@ struct Bucket
 struct HighBucket : Bucket
 {
     HighBucket(std::shared_ptr<Integrator> integrator, size_t pos_x, size_t pos_y, size_t bucket_width, size_t bucket_height) : 
-        Bucket(integrator, pos_x, pos_y, bucket_width, bucket_height)//,sample(0)
+        Bucket(integrator, pos_x, pos_y, bucket_width, bucket_height)
     {
         bucketdata = new Pixel[bucket_width*bucket_height]();
-        bucket_sample = 0; // ATOMIC_VAR_INIT(0);
         bucket_lock = ATOMIC_VAR_INIT(0);
     }
 
     virtual void render()
     {
         int expected = 0;
-        while (std::atomic_compare_exchange_weak(&bucket_lock, &expected, 1))
+        while (std::atomic_compare_exchange_strong(&bucket_lock, &expected, 1))
+        {
+            expected = 0;
             usleep(5);
-        // int sample = bucket_sample.load();
+        }
         int my_scene_version = global_scene_version.load();
         for (size_t y=0; y<bucket_height; ++y)
         {
-            if (my_scene_version != global_scene_version.load())
-                return;
+            //if (my_scene_version != global_scene_version.load())
+            //{
+            //    std::atomic_store(&bucket_lock, 0);
+            //    return;
+            //}
             for (size_t x=0; x<bucket_width; ++x)
             {
                 if (threads_stop)
                     return;
                 size_t offset = y*bucket_width+x;
-                // if (sample == 0)
-                //    bucketdata[offset] = Color();
                 Pixel &pixel(bucketdata[offset]);
-                // int sample = std::atomic_fetch_add(&pixel.sample, 1);
-                pixel.color += integrator->render(x+pos_x, y+pos_y, bucket_sample);
+                pixel.color += integrator->render(x+pos_x, y+pos_y, pixel.sample);
+                pixel.sample += 1;
             }
         }
-        //if (my_scene_version != global_scene_version.load())
-        //    return;
-        // ++sample;
-        ++bucket_sample;
-        // std::atomic_fetch_add(&bucket_sample, 1);
         copied = false;
         completed = true;
         scene_version = my_scene_version;
@@ -114,8 +106,11 @@ struct HighBucket : Bucket
     virtual void reset()
     {
         int expected = 0;
-        while (std::atomic_compare_exchange_weak(&bucket_lock, &expected, 1))
+        while (std::atomic_compare_exchange_strong(&bucket_lock, &expected, 1))
+        {
+            expected = 0;
             usleep(5);
+        }
         this->Bucket::reset();
         // sample = 0;
         for (size_t y=0; y<bucket_height; ++y)
@@ -123,28 +118,28 @@ struct HighBucket : Bucket
             for (size_t x=0; x<bucket_width; ++x)
             {
                 Pixel &pixel(bucketdata[y*bucket_width+x]);
-                // std::atomic_store(&pixel.sample, 0);
                 pixel.color = Color();
+                pixel.sample = 0;
             }
         }
-        bucket_sample = 0;// std::atomic_store(&bucket_sample, 0);
         std::atomic_store(&bucket_lock, 0);
     }
 
     virtual void write(DisplayDriver *driver)
     {
         int expected = 0;
-        while (std::atomic_compare_exchange_weak(&bucket_lock, &expected, 1))
+        while (std::atomic_compare_exchange_strong(&bucket_lock, &expected, 1))
+        {
+            expected = 0;
             usleep(5);
-        // int current_sample = bucket_sample.load();
+        }
         for (size_t y=0; y<bucket_height; ++y)
         {
             for (size_t x=0; x<bucket_width; ++x)
             {
                 Pixel &pixel(bucketdata[y*bucket_width+x]);
-                // int current_sample = pixel.sample.load();
                 Color color = pixel.color;
-                color /= float(bucket_sample);
+                color /= float(pixel.sample);
                 driver->write_pixel(x+pos_x, y+pos_y, color);
             }
         }
@@ -152,11 +147,7 @@ struct HighBucket : Bucket
     }
 
     Pixel *bucketdata;
-    // std::atomic<int> bucket_sample;
-    volatile int bucket_sample;
     std::atomic<int> bucket_lock;
-    // std::atomic<int> sample;
-    // size_t sample;
 };
 
 struct LowBucket : Bucket
@@ -248,28 +239,11 @@ void render_loop(size_t /*thread_index*/, InteractiveRenderer *renderer)
         if (bucket_index >= (renderer->progressive_tiles+renderer->full_tiles))
         {
             bucket_index = renderer->progressive_tiles + (bucket_index - renderer->progressive_tiles) % renderer->full_tiles;
-            //int expected_sample = (bucket_index - renderer->progressive_tiles) / renderer->full_tiles;
-            //HighBucket *hb = dynamic_cast<HighBucket *>(bucket_list[bucket_index]);
-            //while (expected_sample != hb->bucket_sample.load())
-            //    usleep(10);
         }
 
         Bucket *bucket = bucket_list[bucket_index];
-
-        // retrieve the current version of the scene
-        // int my_scene_version = scene_version.load();
-
         bucket->render();
-        
-        // 
-        //if (my_scene_version != scene_version.load())
-        //{
-            // ditch the result, it was computed for an earlier version of the scene
-            //continue;
-        //}
-
-        // store the result somewhere, along with number of samples, and scene iteration count
-        // bucket->color = result;
+        //bucket->write(renderer->display.get());
     }
 }
 
@@ -350,9 +324,9 @@ void InteractiveRenderer::run()
         }
         if (quit)
             break;
-        bool updated = false;
         //if (reset_scene)
         //    display->clear();
+        bool updated = false;
         for(auto &bucket : bucket_list)
         {
             if (bucket->completed && !bucket->copied && scene_version==bucket->scene_version)

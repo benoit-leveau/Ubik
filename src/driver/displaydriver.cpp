@@ -111,6 +111,11 @@ void DisplayDriver::draw()
 
 void DisplayDriver::loop()
 {
+    /* doesn't work...
+    SDL_FlushEvent(SDL_QUIT);
+    SDL_FlushEvent(SDL_KEYDOWN);
+    SDL_FlushEvent(SDL_MOUSEBUTTONDOWN);
+    */
     //Our event structure
 	SDL_Event e;
 	//For tracking if we want to quit

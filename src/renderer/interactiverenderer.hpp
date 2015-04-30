@@ -16,11 +16,13 @@
 // forwrard declaration
 class OutputDriver;
 class DisplayDriver;
+class Logger;
+
 
 class InteractiveRenderer : public Renderer
 {
 public:
-    InteractiveRenderer(std::shared_ptr<Scene> scene, const Options &options);
+    InteractiveRenderer(std::shared_ptr<Scene> scene, const Options &options, Logger &logger);
     virtual ~InteractiveRenderer();
 
     virtual void run();

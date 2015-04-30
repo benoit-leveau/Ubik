@@ -13,19 +13,23 @@
 #include "color.hpp"
 #include "displaydriver.hpp"
 #include "bucket.hpp"
+#include "logging.hpp"
 
-DisplayDriver::DisplayDriver(size_t width, size_t height) : OutputDriver(width, height), renderer(nullptr), texture(nullptr), window(nullptr), pixeldata(nullptr)
+
+DisplayDriver::DisplayDriver(size_t width, size_t height, Logger &logger) : OutputDriver(width, height), renderer(nullptr), texture(nullptr), window(nullptr), pixeldata(nullptr)
 {
 	//First we need to start up SDL, and make sure it went ok
 	if (SDL_Init(SDL_INIT_VIDEO) != 0){
-		std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
+        std::string message = std::string("SDL_Init Error: ") + SDL_GetError();
+        logger.log(message, ERROR);
         SDL_Quit();
 	}
 	//Now create a window
 	window = SDL_CreateWindow("Test", 100, 100, width, height, SDL_WINDOW_SHOWN);
 	//Make sure creating our window went ok
 	if (window == nullptr){
-		std::cout << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
+		std::string message = std::string("SDL_CreateWindow Error: ") + SDL_GetError();
+        logger.log(message, ERROR);
         SDL_Quit();
 	}
 
@@ -37,7 +41,8 @@ DisplayDriver::DisplayDriver(size_t width, size_t height) : OutputDriver(width, 
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if (renderer == nullptr){
 		SDL_DestroyWindow(window);
-		std::cout << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
+		std::string message = std::string("SDL_CreateRenderer Error: ") + SDL_GetError();
+        logger.log(message, ERROR);
 		SDL_Quit();
 	}
 
@@ -54,7 +59,8 @@ DisplayDriver::DisplayDriver(size_t width, size_t height) : OutputDriver(width, 
 	if (texture == nullptr){
 		SDL_DestroyRenderer(renderer);
 		SDL_DestroyWindow(window);
-		std::cout << "SDL_CreateTexture Error: " << SDL_GetError() << std::endl;
+		std::string message = std::string("SDL_CreateTexture Error: ") + SDL_GetError();
+        logger.log(message, ERROR);
 		SDL_Quit();
 	}
 

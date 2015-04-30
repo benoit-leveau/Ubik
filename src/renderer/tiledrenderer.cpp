@@ -20,7 +20,8 @@
 #include "bucket.hpp"
 #include "options.hpp"
 #include "arrayiterator.hpp"
-
+#include "logging.hpp"
+#include "memory.hpp"
 
 void render_task(size_t threadid, Task *task)
 {
@@ -40,8 +41,8 @@ void render_task(size_t threadid, Task *task)
 }
 
 
-TiledRenderer::TiledRenderer(std::shared_ptr<Scene> scene, const Options &options) : 
-    Renderer(scene, options),
+TiledRenderer::TiledRenderer(std::shared_ptr<Scene> scene, const Options &options, Logger &logger) : 
+    Renderer(scene, options, logger),
     bucketsize(options.bucketsize),
     display(nullptr),
     image_mode(ArrayIterationMode::BOTTOMLEFT)
@@ -59,7 +60,7 @@ TiledRenderer::TiledRenderer(std::shared_ptr<Scene> scene, const Options &option
 
     if (options.show_window)
     {
-        display = new DisplayDriver(options.width, options.height);
+        display = new DisplayDriver(options.width, options.height, logger);
         output_list.push_back(display);
     }
 
@@ -71,7 +72,7 @@ TiledRenderer::TiledRenderer(std::shared_ptr<Scene> scene, const Options &option
     }
     else if (!options.show_window)
     {
-        std::cout << "Warning! No output defined, and show_window option not set." << std::endl;
+        logger.log("No output defined, and show_window option not set", WARNING);
     }
 
     // create list of buckets
@@ -105,15 +106,18 @@ TiledRenderer::~TiledRenderer()
         delete bucket;
 }
 
+
 void TiledRenderer::run()
 {
+    std::string message = "Starting bucket render with " + std::to_string(nbthreads) + " threads";
+    logger.log(message, INFO);
+
     std::list<Task *> tasks_pending(task_list);
 
     // start chrono
+    ProgressLog progress("Rendering", logger);
     auto t_start = std::chrono::high_resolution_clock::now();
     
-    std::cout << "Starting bucket render with " << nbthreads << " threads" << std::endl;
-
     // create the thread pool
     ctpl::thread_pool pool(nbthreads);
 
@@ -121,6 +125,9 @@ void TiledRenderer::run()
     for(auto &task : task_list){
         pool.push(render_task, task);
     }
+
+    size_t number_tasks = task_list.size();
+    float displayed_progress = 0.0f;
 
     // wait for all tasks to be processed
     while(tasks_pending.size()>0)
@@ -132,7 +139,6 @@ void TiledRenderer::run()
             if ((*it)->completed)
             {             
                 Task *task(*it);
-                // std::cout << "Bucket (" << task->bucket->index_x << "," << task->bucket->index_y << ") was rendered in " << task->time << " ms by thread #" << task->threadid << std::endl;
                 for(auto &output : output_list)
                     output->write(task->bucket);
                 it = tasks_pending.erase(it);
@@ -143,6 +149,7 @@ void TiledRenderer::run()
         }
         if (found)
         {
+            progress.update(100.0*(number_tasks-tasks_pending.size())/float(number_tasks));
             for(auto &output : output_list)
                 output->update();
         }
@@ -151,11 +158,11 @@ void TiledRenderer::run()
     }
 
     // end chrono
-    auto t_end = std::chrono::high_resolution_clock::now();
+    progress.done();
 
-    // 
-    double time = std::chrono::duration<double, std::milli>(t_end-t_start).count();
-    std::cout << "Rendered image in " << time << "ms" << std::endl;
+    size_t memory = getPeakRSS();
+    std::string message3 = "Memory Usage Peak: " + get_memory_display(memory);
+    logger.log(message3, INFO);
 
     // close any output
     for(auto &output : output_list)

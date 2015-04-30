@@ -21,11 +21,13 @@ class Task;
 class OutputDriver;
 class DisplayDriver;
 enum class ArrayIterationMode;
+class Logger;
+
 
 class TiledRenderer : public Renderer
 {
 public:
-    TiledRenderer(std::shared_ptr<Scene> scene, const Options &options);
+    TiledRenderer(std::shared_ptr<Scene> scene, const Options &options, Logger &logger);
     virtual ~TiledRenderer();
 
     virtual void run();

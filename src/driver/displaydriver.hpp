@@ -17,12 +17,13 @@ class SDL_Renderer;
 class SDL_Texture;
 class SDL_Window;
 class Color;
+class Logger;
 
 
 class DisplayDriver : public OutputDriver
 {
 public:
-    DisplayDriver(size_t width, size_t height);
+    DisplayDriver(size_t width, size_t height, Logger &logger);
     ~DisplayDriver();
 
     void write(Bucket *bucket);

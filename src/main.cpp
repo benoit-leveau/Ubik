@@ -4,6 +4,7 @@
 #include "scene.hpp"
 #include "renderer.hpp"
 #include "OptionParser.h"
+#include "logging.hpp"
 
 
 int main(int argc, char**argv)
@@ -21,6 +22,7 @@ int main(int argc, char**argv)
     group.add_option("-w", "--width").action("store").type("int").set_default(640).help("Output width. (default: %default)");
     group.add_option("-h", "--height").action("store").type("int").set_default(480).help("Output height. (default: %default)");
     group.add_option("-t", "--threads").action("store").type("int").set_default(0).help("Sets the number of threads. (default: %default - use all available cores)");
+    group.add_option("-v", "--verbosity").action("store").type("int").set_default(3).help("Verbosity. (default: %default)");
     parser.add_option_group(group);
     
     optparse::OptionGroup group_tiled = optparse::OptionGroup(parser, "Tiled Renderer Options");
@@ -35,6 +37,8 @@ int main(int argc, char**argv)
     parser.add_option_group(group_tiled);
     
     optparse::Values& parse_options = parser.parse_args(argc, argv);
+
+    Logger logger(int(parse_options.get("verbosity")));
 
     // render options
     Options options(int(parse_options.get("width")),
@@ -54,7 +58,7 @@ int main(int argc, char**argv)
     auto scene = std::make_shared<Scene>();
     scene->frame = 0;
     
-    auto renderer = Renderer::create_renderer(scene, options);
+    auto renderer = Renderer::create_renderer(scene, options, logger);
     renderer->run();
     
 	return 0;

@@ -18,13 +18,14 @@
 #include <iostream>
 #include <memory>
 
-Renderer::Renderer(std::shared_ptr<Scene> scene, const Options &options) : 
+Renderer::Renderer(std::shared_ptr<Scene> scene, const Options &options, Logger &logger) : 
     scene(scene),
     sampler(nullptr),
     integrator(nullptr),
     width(options.width),
     height(options.height),
-    nbthreads(options.nbthreads)
+    nbthreads(options.nbthreads),
+    logger(logger)
 {
     if (options.pathtracer)
         integrator = std::shared_ptr<Integrator>(new ImageRender(options, scene)); // PathTracer, options
@@ -36,10 +37,10 @@ Renderer::~Renderer()
 {
 }
 
-std::unique_ptr<Renderer> Renderer::create_renderer(std::shared_ptr<Scene> scene, const Options &options)
+std::unique_ptr<Renderer> Renderer::create_renderer(std::shared_ptr<Scene> scene, const Options &options, Logger &logger)
 {
     if (options.interactive)
-        return std::unique_ptr<Renderer>(new InteractiveRenderer(scene, options));
+        return std::unique_ptr<Renderer>(new InteractiveRenderer(scene, options, logger));
     else
-        return std::unique_ptr<Renderer>(new TiledRenderer(scene, options));
+        return std::unique_ptr<Renderer>(new TiledRenderer(scene, options, logger));
 }

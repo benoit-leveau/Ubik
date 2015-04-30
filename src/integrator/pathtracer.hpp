@@ -19,7 +19,8 @@
 class Options;
 class Color;
 class Scene;
-
+class Vector;
+class RNG;
 
 class PathTracer : public Integrator
 {
@@ -29,6 +30,10 @@ public:
 
     virtual Color render(size_t x, size_t y, size_t sample);
 private:
+    Color get_radiance(Vector view_position, Vector sample_direction, const RNG &rng);
+    
+    double width64;
+    double height64;
 };
 
 #endif // !PATHTRACER_HPP

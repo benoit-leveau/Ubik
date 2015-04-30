@@ -5,7 +5,16 @@
 #include "renderer.hpp"
 #include "OptionParser.h"
 #include "logging.hpp"
+#include <signal.h>
 
+void signal_handler(int arg)
+{
+    if( SIGINT == arg )
+    {
+        std::cout << "\nInterrupted by user!\n";
+        ::exit( EXIT_SUCCESS );
+    }
+}
 
 int main(int argc, char**argv)
 {
@@ -37,6 +46,9 @@ int main(int argc, char**argv)
     parser.add_option_group(group_tiled);
     
     optparse::Values& parse_options = parser.parse_args(argc, argv);
+
+    // setup ctrl-c/interruption/sigint handler
+    ::signal(SIGINT, signal_handler);
 
     Logger logger(int(parse_options.get("verbosity")));
 

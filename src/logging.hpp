@@ -36,6 +36,8 @@ private:
     int verbosity;
 };
 
+// TODO:ProgressLog should inherit from Logger, and it should override log() to add an indentation
+// so we can cascade ProgressLogs and also add messages that are not just percent updates
 class ProgressLog
 {
 public:

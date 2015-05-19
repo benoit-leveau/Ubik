@@ -24,6 +24,7 @@
 #include "color.hpp"
 #include "options.hpp"
 #include "arrayiterator.hpp"
+#include "logging.hpp"
 
 #include <cmath>
 
@@ -268,7 +269,7 @@ void InteractiveRenderer::run()
 
     std::vector<std::thread> threads;
 
-    std::cout << "Starting interactive render with " << nbthreads << " threads" << std::endl;
+    logger.log("Starting interactive render with " + std::to_string(nbthreads) + " threads", INFO);
 
     for(size_t thread_index=0; thread_index<nbthreads; ++thread_index)
     {

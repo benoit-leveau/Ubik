@@ -11,5 +11,6 @@
 
 size_t getCurrentRSS();
 size_t getPeakRSS();
+size_t getMemorySize();
 
 #endif // !MEMORY_HPP

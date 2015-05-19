@@ -63,6 +63,11 @@ echo $CMD
 $CMD
 OBJECTS="$OBJECTS ../build/OptionParser.o"
 
+CMD="g++ ../thirdparty/nadeau/getMemorySize.cpp -c -o ../build/getMemorySize.o $OPTIONS $INCLUDE_DIR"
+echo $CMD
+$CMD
+OBJECTS="$OBJECTS ../build/getMemorySize.o"
+
 CMD="g++ $OBJECTS -o ../bin/pt $LIB_DIR"
 echo $CMD
 $CMD

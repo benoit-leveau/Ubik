@@ -34,6 +34,7 @@ volatile bool threads_stop = false;
 std::vector<Bucket *> bucket_list;
 
 // TODO: add level to the LowPixel so we don't overwrite pixels in the image with coarser levels
+// TODO: see if we can dynamically adapt render based on the render times (sticky when image size increase)
 
 struct Pixel
 {

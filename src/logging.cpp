@@ -136,8 +136,8 @@ void Logger::log(std::string message, LoggingLevel level)
     {
         std::ostringstream stream;
         size_t memory = getCurrentRSS();
-        stream << std::setw(6) << std::right << get_memory_display(memory);
-        disp_message += "  " + stream.str();
+        stream << std::setw(7) << std::right << get_memory_display(memory);
+        disp_message += " " + stream.str();
     }
 
     // then add LOG LEVEL: INFO, WARNING, ERROR

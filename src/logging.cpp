@@ -81,7 +81,9 @@ void ProgressLog::done()
         update(100.0);
     auto current_time = std::chrono::steady_clock::now();
     double time = std::chrono::duration<double>(current_time-start_time).count();
-    std::string message = operation + " took " + std::to_string(time) + "s";
+    std::ostringstream stream;
+    stream << std::fixed << std::setprecision(2) << std::setfill('0') << time;
+    std::string message = operation + " took " + stream.str() + "s";
     logger.log(message, INFO);
 }
 

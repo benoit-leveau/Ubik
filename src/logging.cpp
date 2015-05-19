@@ -40,7 +40,7 @@ std::string get_level_message(LoggingLevel level)
     }
 }
 
-ProgressLog::ProgressLog(std::string operation, Logger &logger) : logger(logger), operation(operation)
+ProgressLog::ProgressLog(std::string operation, Logger &logger) : logger(logger), operation(operation), is_done(false)
 {
     start_time = std::chrono::steady_clock::now();
     last_displayed_time = std::chrono::steady_clock::now();
@@ -48,11 +48,18 @@ ProgressLog::ProgressLog(std::string operation, Logger &logger) : logger(logger)
     update(0.0f);
 }
 
+
+ProgressLog::~ProgressLog()
+{
+    if (!is_done)
+        done();
+}
+
 void ProgressLog::update(float progress)
 {
     auto current_time = std::chrono::steady_clock::now();
     double time = std::chrono::duration<double>(current_time-last_displayed_time).count();
-    if ((progress - last_displayed_progress >= 5.0) || (time>30))
+    if ((progress == 100.0) || (progress - last_displayed_progress >= 5.0) || (time>30))
     {
         last_displayed_progress = progress;
         last_displayed_time = current_time;
@@ -65,6 +72,9 @@ void ProgressLog::update(float progress)
 
 void ProgressLog::done()
 {
+    is_done = true;
+    if (last_displayed_progress != 100.0)
+        update(100.0);
     auto current_time = std::chrono::steady_clock::now();
     double time = std::chrono::duration<double>(current_time-start_time).count();
     std::string message = operation + " took " + std::to_string(time) + "s";

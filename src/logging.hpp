@@ -35,6 +35,7 @@ class ProgressLog
 {
 public:
     ProgressLog(std::string operation, Logger &logger);
+    ~ProgressLog();
 
     void update(float progress);
     void done();
@@ -43,6 +44,7 @@ private:
     Logger &logger;
     std::string operation;
     float last_displayed_progress;
+    bool is_done;
     std::chrono::time_point<std::chrono::steady_clock> start_time;
     std::chrono::time_point<std::chrono::steady_clock> last_displayed_time;
 };

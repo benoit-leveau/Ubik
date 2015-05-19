@@ -51,6 +51,7 @@ int main(int argc, char**argv)
     ::signal(SIGINT, signal_handler);
 
     Logger logger(int(parse_options.get("verbosity")));
+    logger.log_system_info(INFO);
 
     // render options
     Options options(int(parse_options.get("width")),

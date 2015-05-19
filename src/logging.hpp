@@ -19,13 +19,18 @@ enum LoggingLevel {
   DEBUG    = 4
 };
 
-std::string get_memory_display(size_t memory);
+std::string get_memory_display(size_t memory, bool show_gb=false);
 
 class Logger
 {
 public:
     Logger(int verbosity);
+
     void log(std::string message, LoggingLevel level);
+
+    void log_current_time(std::string message, LoggingLevel level);
+    void log_system_info(LoggingLevel level);
+
 private:
     std::chrono::time_point<std::chrono::steady_clock> start_time;
     int verbosity;

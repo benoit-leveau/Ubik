@@ -9,15 +9,19 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <thread>
 
 #include "logging.hpp"
 #include "memory.hpp"
 
 
-std::string get_memory_display(size_t memory)
+std::string get_memory_display(size_t memory, bool show_gb/*=false*/)
 {
-    if (memory > 1024*1024*1024)
-        return std::to_string(int(memory / (1024*1024*1024))) + "GB";
+    if (show_gb && memory > 1024*1024*1024){
+        std::ostringstream stream;
+        stream << std::fixed << std::setprecision(2) << std::setfill('0') << float(memory) / float(1024*1024*1024) << "GB";
+        return stream.str();
+    }
     else if (memory > 1024*1024)
         return std::to_string(int(memory / (1024*1024))) + "MB";
     else if (memory > 1024)
@@ -84,6 +88,25 @@ void ProgressLog::done()
 Logger::Logger(int verbosity) : verbosity(verbosity)
 {
     start_time = std::chrono::steady_clock::now();
+    log_current_time("Started logging on", INFO);
+}
+ 
+void Logger::log_current_time(std::string message, LoggingLevel level)
+{
+    std::chrono::time_point<std::chrono::system_clock> time = std::chrono::system_clock::now();
+    std::time_t time_t = std::chrono::system_clock::to_time_t(time);
+    char mbstr[30];
+    if (std::strftime(mbstr, sizeof(mbstr), "%c", std::localtime(&time_t)))
+        log(message + " " + std::string(mbstr), level);
+}
+
+void Logger::log_system_info(LoggingLevel level)
+{
+    std::ostringstream stream;
+    size_t memory = getMemorySize();
+    size_t nb_cores = std::thread::hardware_concurrency();
+    std::string message = "System: " + std::to_string(nb_cores) + " cores - " + get_memory_display(memory, true) + " RAM";
+    log(message, level);
 }
 
 void Logger::log(std::string message, LoggingLevel level)

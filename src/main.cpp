@@ -28,8 +28,8 @@ int main(int argc, char**argv)
     parser.add_option("--interactive").action("store_true").help("Interactive mode");
 
     optparse::OptionGroup group = optparse::OptionGroup(parser, "Global Options");
-    group.add_option("-w", "--width").action("store").type("int").set_default(640).help("Output width. (default: %default)");
-    group.add_option("-h", "--height").action("store").type("int").set_default(480).help("Output height. (default: %default)");
+    group.add_option("--width").action("store").type("int").set_default(640).help("Output width. (default: %default)");
+    group.add_option("--height").action("store").type("int").set_default(480).help("Output height. (default: %default)");
     group.add_option("-t", "--threads").action("store").type("int").set_default(0).help("Sets the number of threads. (default: %default - use all available cores)");
     group.add_option("-v", "--verbosity").action("store").type("int").set_default(3).help("Verbosity. (default: %default)");
     parser.add_option_group(group);

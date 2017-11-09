@@ -28,7 +28,9 @@ Renderer::Renderer(std::shared_ptr<Scene> scene, const Options &options, Logger 
     logger(logger)
 {
     if (options.pathtracer)
-        integrator = std::shared_ptr<Integrator>(new ImageRender(options, scene)); // PathTracer, options
+        integrator = std::shared_ptr<Integrator>(new PathTracer(options, scene));
+    else
+        integrator = std::shared_ptr<Integrator>(new ImageRender(options, scene));
     if (!options.interactive && options.fixedsampling)
         sampler = std::shared_ptr<Sampler>(new FixedSampler(options, integrator));
 }

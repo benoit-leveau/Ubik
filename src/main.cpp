@@ -60,8 +60,8 @@ int main(int argc, char**argv)
                     std::string(parse_options.get("output")));
 
     // read/construct scene
-    auto scene = std::make_shared<Scene>();
-    scene->frame = 0;
+    auto scene = std::make_shared<Scene>(options, logger);
+    scene->load();
 
     auto renderer = Renderer::create_renderer(scene, options, logger);
     renderer->run();

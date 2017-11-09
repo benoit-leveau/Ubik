@@ -25,6 +25,7 @@
 #include "options.hpp"
 #include "arrayiterator.hpp"
 #include "logging.hpp"
+#include "camera.hpp"
 
 #include <cmath>
 
@@ -279,10 +280,13 @@ void InteractiveRenderer::run()
 
     bool mouse_button_down = false;
     bool quit = false;
+    
+    scene->update();
+    
     while(!quit)
     {
         auto t_start = std::chrono::high_resolution_clock::now();
-        bool skip_sleep = false;
+        //bool skip_sleep = false;
         SDL_Event e;
         bool reset_scene = false;
         while (SDL_PollEvent(&e))
@@ -290,22 +294,27 @@ void InteractiveRenderer::run()
             if (e.type == SDL_MOUSEBUTTONDOWN)
             {
                 mouse_button_down = true;
-                skip_sleep = true;
+                //skip_sleep = true;
             }
             else if (e.type == SDL_MOUSEBUTTONUP)
             {
                 mouse_button_down = false;
-                skip_sleep = true;
+                //skip_sleep = true;
             }
             else if (e.type == SDL_MOUSEMOTION)
             {
-                skip_sleep = true;
+                //skip_sleep = true;
                 if (mouse_button_down)
                 {
                     reset_scene = true;
                     std::atomic_store(&current_bucket, -1);
-                    scene->x += e.motion.xrel;
-                    scene->y += e.motion.yrel;
+                    SDL_Keymod modifier = SDL_GetModState();
+                    if (modifier & KMOD_SHIFT)
+                        scene->camera->rotateOrbit(-0.005f*e.motion.xrel, 0.005f*e.motion.xrel);
+                    else if (modifier & KMOD_CTRL)
+                        scene->camera->dolly(-e.motion.yrel);
+                    else
+                        scene->camera->rotate(-0.005f*e.motion.xrel,0.005f*e.motion.yrel);
                     std::atomic_fetch_add(&global_scene_version, 1);
                     scene_version = global_scene_version.load();
                     for(auto &bucket : bucket_list){
@@ -319,10 +328,39 @@ void InteractiveRenderer::run()
                 quit = true;
                 break;
             }
-            //if (e.type == SDL_KEYDOWN)
-            //{
-            //    break;
-            //}
+            if (e.type == SDL_KEYDOWN)
+            {
+                switch( e.key.keysym.sym ){
+                case SDLK_LEFT:
+                    if (scene->frame > 0)
+                    {
+                        scene->frame -= 1;
+                        reset_scene = true;
+                        std::atomic_store(&current_bucket, -1);
+                        scene->update();
+                        std::atomic_fetch_add(&global_scene_version, 1);
+                        scene_version = global_scene_version.load();
+                        for(auto &bucket : bucket_list){
+                            bucket->reset();
+                        }
+                        std::atomic_store(&current_bucket, 0);
+                    }
+                    break;
+                case SDLK_RIGHT:
+                    scene->frame +=  1;
+                    reset_scene = true;
+                    std::atomic_store(&current_bucket, -1);
+                    scene->update();
+                    std::atomic_fetch_add(&global_scene_version, 1);
+                    scene_version = global_scene_version.load();
+                    for(auto &bucket : bucket_list){
+                        bucket->reset();
+                    }
+                    std::atomic_store(&current_bucket, 0);
+                    break;
+                }
+            }
+            //if (e.type == SDL_KEYUP){}
         }
         if (quit)
             break;

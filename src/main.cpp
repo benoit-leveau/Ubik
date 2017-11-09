@@ -27,6 +27,7 @@ int main(int argc, char**argv)
 
     optparse::OptionGroup group_tiled = optparse::OptionGroup(parser, "Tiled Renderer Options");
     group_tiled.add_option("--show-window").action("store_true").help("Show a render window.");
+    group_tiled.add_option("--path-tracer").action("store_true").help("Use path tracing.");
     group_tiled.add_option("--bucket-size").action("store").type("int").set_default(64).help("Sets the bucket size. default: %default");
     char const* const modes[] = { "topleft", "topright", "bottomleft", "bottomright", "spiral" };
     group_tiled.add_option("-m", "--mode").choices(&modes[0], &modes[5]).set_default("spiral").help("Sets the bucket order mode. default: %default");
@@ -51,7 +52,7 @@ int main(int argc, char**argv)
                     bool(parse_options.get("show_window")),
                     int(parse_options.get("bucket_size")),
                     std::string(parse_options.get("mode")),
-                    true, // path tracer
+                    bool(parse_options.get("path_tracer")),
                     true, // fixed sampling,
                     int(parse_options.get("min_samples")),
                     int(parse_options.get("max_samples")),

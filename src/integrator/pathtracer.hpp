@@ -14,6 +14,7 @@
 #include <cstddef>
 #include <memory>
 #include "integrator.hpp"
+#include <embree2/rtcore.h>
 
 // forward declaration
 class Options;
@@ -31,7 +32,9 @@ public:
     virtual Color render(size_t x, size_t y, size_t sample);
 private:
     Color get_radiance(Vector view_position, Vector sample_direction, const RNG &rng);
-    
+
+    RTCDevice rtc_device;
+    RTCScene rtc_scene;
     double width64;
     double height64;
 };

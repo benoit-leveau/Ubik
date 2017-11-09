@@ -33,17 +33,20 @@ else
 OPTIONS="$OPTIONS -DLINUX=1"
 SDL_HEADER_DIR="-I/milk/code/central/include/SDL/2.0/SDL2/"
 OPENEXR_HEADER_DIR="-I/milk/code/central/include/OpenEXR/2.0.1/"
+EMBREE_HEADER_DIR="-I../thirdparty/embree-2.11.0.x86_64.linux/include"
 GCC48_LIB_DIR="-L/milk/code/central/lib/centos6/gcc-4.8.4/"
-OPENEXR_LIB_DIR="-L/milk/code/central/lib/centos6/gcc-4.4.7/"
+OPENEXR_LIB_DIR="-L/milk/code/central/lib/centos6/gcc-4.8.4/"
 OPENEXR_LINK="-lHalf -lIlmImf"
-SDL_LIB_DIR="-L/milk/code/central/lib/centos6/gcc-4.4.7/"
+SDL_LIB_DIR="-L/milk/code/central/lib/centos6/gcc-4.8.4/"
 SDL_LINK="-lSDL2"
 TIFF_LINK="-ltiff"
+EMBREE_LIB_DIR="-L../thirdparty/embree-2.11.0.x86_64.linux/lib"
+EMBREE_LINK="-Wl,-rpath-link,../thirdparty/embree-2.11.0.x86_64.linux/lib -lembree"
 fi
 
-OPTIONS="$OPTIONS -Wall -Wextra -pedantic -O3 -std=c++11"
-INCLUDE_DIR="-I./ -Idriver -Irenderer -Iintegrator -Isampler -Iutils -I../thirdparty/ctpl -I../thirdparty/optparse ${SDL_HEADER_DIR} ${OPENEXR_HEADER_DIR} ${TIFF_HEADER_DIR}"
-LIB_DIR="${GCC48_LIB_DIR} ${OPENEXR_LIB_DIR} ${OPENEXR_LINK} ${SDL_LIB_DIR} ${SDL_LINK} ${TIFF_LINK}"
+OPTIONS="$OPTIONS -O3 -std=c++11" # -Wall -Wextra -pedantic
+INCLUDE_DIR="-I./ -Idriver -Irenderer -Iintegrator -Isampler -Iutils -I../thirdparty/ctpl -I../thirdparty/optparse ${SDL_HEADER_DIR} ${OPENEXR_HEADER_DIR} ${TIFF_HEADER_DIR} ${EMBREE_HEADER_DIR}"
+LIB_DIR="${GCC48_LIB_DIR} ${OPENEXR_LIB_DIR} ${OPENEXR_LINK} ${SDL_LIB_DIR} ${SDL_LINK} ${TIFF_LINK} ${EMBREE_LIB_DIR} ${EMBREE_LINK}"
 
 OBJECTS=""
 for FILE in `find . -iname "*.cpp" | sed 's/\.\///g'`; do

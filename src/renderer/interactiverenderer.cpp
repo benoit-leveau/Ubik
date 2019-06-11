@@ -281,7 +281,7 @@ void InteractiveRenderer::run()
     bool mouse_button_down = false;
     bool quit = false;
     
-    scene->update();
+    //scene->update();
     
     while(!quit)
     {

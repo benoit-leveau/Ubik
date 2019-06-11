@@ -310,7 +310,7 @@ void InteractiveRenderer::run()
                     std::atomic_store(&current_bucket, -1);
                     SDL_Keymod modifier = SDL_GetModState();
                     if (modifier & KMOD_SHIFT)
-                        scene->camera->rotateOrbit(-0.005f*e.motion.xrel, 0.005f*e.motion.xrel);
+                        scene->camera->rotateOrbit(-0.005f*e.motion.xrel, 0.005f*e.motion.yrel);
                     else if (modifier & KMOD_CTRL)
                         scene->camera->dolly(-e.motion.yrel);
                     else

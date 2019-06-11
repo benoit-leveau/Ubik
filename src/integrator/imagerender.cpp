@@ -78,10 +78,10 @@ ImageRenderData::~ImageRenderData()
 
 ImageRender::ImageRender(const Options &options, std::shared_ptr<Scene> scene) : 
     Integrator(options, scene),
-    add_noise(true) // !options.interactive)
+    add_noise(false) // !options.interactive)
 {
 #ifdef LINUX
-    data = new ImageRenderData("/milk/users/benoit/pwork/ubik/image.tx");
+    data = new ImageRenderData("./test.tiff");
 #elif OSX
     data = new ImageRenderData("/Users/benoit/Documents/Prog/ubik/bin/image.tiff");
 #endif
@@ -102,8 +102,8 @@ Color ImageRender::render(size_t x, size_t y, size_t sample)
     // ...
 
     // convert (x, y) into image coordinates
-    int img_x = 0; //x - scene->x;
-    int img_y = 0; //y - scene->y;
+    int img_x = x; // - scene->x;
+    int img_y = y; // - scene->y;
     if ((img_x < 0) || (img_y < 0) || (img_x >= int(this->width)) || (img_y >= int(this->height)))
     {
         return Color(0, 0, 0);

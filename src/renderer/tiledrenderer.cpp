@@ -7,6 +7,9 @@
 */
 
 #include <iostream>
+#include <iomanip>
+#include <sstream>
+
 #include <chrono>
 #include <unistd.h>
 
@@ -139,6 +142,13 @@ void TiledRenderer::run()
             if ((*it)->completed)
             {             
                 Task *task(*it);
+                
+                // Log bucket time
+                std::ostringstream stream;
+                stream << "Bucket (" << task->bucket->index_x << "," << task->bucket->index_y << ") finished (thread " << task->threadid << "): " << std::fixed << std::setprecision(2) << std::setfill('0') << task->time << "ms";
+                logger.log(stream.str(), DEBUG);
+                
+                // write Bucket
                 for(auto &output : output_list)
                     output->write(task->bucket);
                 it = tasks_pending.erase(it);

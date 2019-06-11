@@ -49,7 +49,7 @@ unsigned int g_instance2 = -1;
 unsigned int g_instance3 = -1;
 AffineSpace3fa instance_xfm[4];
 
-const int numPhi = 5;
+const int numPhi = 20;
 const int numTheta = 2*numPhi;
 
 struct Vertex   { float x,y,z,a;  }; // FIXME: rename to Vertex4f
@@ -147,10 +147,10 @@ Scene::Scene(const Options &options, Logger &logger) :
 void Scene::load()
 {
     rtc_scene1 = rtcDeviceNewScene(rtc_device, RTC_SCENE_STATIC,RTC_INTERSECT1 /*| RTC_INTERPOLATE*/);
-    createTriangulatedSphere(rtc_scene1,Vec3fa( 0, 0,+1),0.5f);
-    createTriangulatedSphere(rtc_scene1,Vec3fa(+1, 0, 0),0.5f);
-    createTriangulatedSphere(rtc_scene1,Vec3fa( 0, 0,-1),0.5f);
-    createTriangulatedSphere(rtc_scene1,Vec3fa(-1, 0, 0),0.5f);
+    createTriangulatedSphere(rtc_scene1,Vec3fa( 0, 0,+1),0.2f);
+    createTriangulatedSphere(rtc_scene1,Vec3fa(+1, 0, 0),0.2f);
+    createTriangulatedSphere(rtc_scene1,Vec3fa( 0, 0,-1),0.2f);
+    createTriangulatedSphere(rtc_scene1,Vec3fa(-1, 0, 0),0.2f);
     rtcCommit(rtc_scene1);
     
     g_instance0 = rtcNewInstance2(rtc_scene,rtc_scene1,1);

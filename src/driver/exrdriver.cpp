@@ -23,7 +23,7 @@ EXRDriver::EXRDriver(size_t width, size_t height, size_t bucketsize, std::string
 {
     size_t tileWidth = bucketsize;
     size_t tileHeight = bucketsize;
-    out = new Imf_2_0::TiledRgbaOutputFile(filename.c_str(),
+    out = new Imf_2_2::TiledRgbaOutputFile(filename.c_str(),
                                            width, height,         // image size
                                            tileWidth, tileHeight, // tile size
                                            Imf::ONE_LEVEL,        // level mode

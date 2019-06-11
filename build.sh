@@ -2,7 +2,7 @@
 
 DIST=`uname`
 if [ "$DIST" != "Darwin" ];then
-export PATH=/milk/code/dev/bin/centos6/gcc484-nosuffix/:$PATH
+export PATH=/milk/code/dev/tools/centos7/gcc-4.9.2/bin/:$PATH
 source /milk/code/config/bash/expand-variables.sh
 fi
 
@@ -22,7 +22,7 @@ EMBREE_VERSION=2.17
 if [ "$DIST" == "Darwin" ]; then
 OPTIONS="$OPTIONS -DOSX=1"
 SDL_HEADER_DIR="-I/Library/Frameworks/SDL2.framework/Headers"
-GCC48_LIB_DIR=
+GCC_LIB_DIR=
 TIFF_HEADER_DIR="-I/Users/benoit/Documents/Prog/libs/include/tiff"
 OPENEXR_LIB_DIR="-L/Users/benoit/Documents/Prog/libs/lib/"
 OPENEXR_LINK="-lHalf -lIlmImf"
@@ -32,22 +32,23 @@ SDL_LINK="-framework SDL2"
 TIFF_LINK="-ltiff"
 else
 OPTIONS="$OPTIONS -DLINUX=1"
-SDL_HEADER_DIR="-I/milk/code/central/include/SDL/2.0/SDL2/"
-OPENEXR_HEADER_DIR="-I/milk/code/central/include/OpenEXR/2.0.1/"
-EMBREE_HEADER_DIR="-I../thirdparty/embree-${EMBREE_VERSION}.0.x86_64.linux/include"
-GCC48_LIB_DIR="-L/milk/code/central/lib/centos6/gcc-4.8.4/"
-OPENEXR_LIB_DIR="-L/milk/code/central/lib/centos6/gcc-4.8.4/"
+SDL_HEADER_DIR="-I/milk/users/benoit/work/thirdparty/sdl2-2.0.9-gcc492-c7/include/SDL2/"
+OPENEXR_HEADER_DIR="-I/milk/code/central/include/centos7/gcc-4.9.2/"
+EMBREE_HEADER_DIR="-I../thirdparty/embree-${EMBREE_VERSION}.0.x86_64.linux/include/"
+TIFF_HEADER_DIR="-I/milk/code/central/include/tiff/4.0.4/"
+GCC_LIB_DIR="-L/milk/code/central/lib/centos7/gcc-4.9.2/"
+OPENEXR_LIB_DIR="-L/milk/code/central/lib/centos7/gcc-4.9.2/"
 OPENEXR_LINK="-lHalf -lIlmImf"
-SDL_LIB_DIR="-L/milk/code/central/lib/centos6/gcc-4.8.4/"
+SDL_LIB_DIR="-L/milk/users/benoit/work/thirdparty/sdl2-2.0.9-gcc492-c7/lib/"
 SDL_LINK="-lSDL2"
 TIFF_LINK="-ltiff"
-EMBREE_LIB_DIR="-L../thirdparty/embree-${EMBREE_VERSION}.0.x86_64.linux/lib"
-EMBREE_LINK="-Wl,-rpath-link,../thirdparty/embree-${EMBREE_VERSION}.0.x86_64.linux/lib -lembree"
+EMBREE_LIB_DIR="-L/milk/code/central/lib/centos7/gcc-4.9.2/"
+EMBREE_LINK="-Wl,-rpath-link,/milk/code/central/lib/centos7/gcc-4.9.2/ -lembree"
 fi
 
 OPTIONS="$OPTIONS -O3 -std=c++11" # -Wall -Wextra -pedantic
 INCLUDE_DIR="-I./ -Idriver -Irenderer -Iintegrator -Isampler -Iutils -Iscene -Icamera -I../thirdparty/ctpl -I../thirdparty/optparse ${SDL_HEADER_DIR} ${OPENEXR_HEADER_DIR} ${TIFF_HEADER_DIR} ${EMBREE_HEADER_DIR}"
-LIB_DIR="${GCC48_LIB_DIR} ${OPENEXR_LIB_DIR} ${OPENEXR_LINK} ${SDL_LIB_DIR} ${SDL_LINK} ${TIFF_LINK} ${EMBREE_LIB_DIR} ${EMBREE_LINK}"
+LIB_DIR="${GCC_LIB_DIR} ${OPENEXR_LIB_DIR} ${OPENEXR_LINK} ${SDL_LIB_DIR} ${SDL_LINK} ${TIFF_LINK} ${EMBREE_LIB_DIR} ${EMBREE_LINK}"
 
 OBJECTS=""
 for FILE in `find . -iname "*.cpp" | sed 's/\.\///g'`; do

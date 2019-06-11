@@ -76,9 +76,9 @@ unsigned int createTriangulatedSphere (RTCScene scene, const Vec3fa& p, float r)
       const float thetaf = theta*2.0f*float(pi)*rcpNumTheta;
 
       Vertex& v = vertices[phi*numTheta+theta];
-      v.x = p.x + r*sin(phif)*sin(thetaf);
-      v.y = p.y + r*cos(phif);
-      v.z = p.z + r*sin(phif)*cos(thetaf);
+      v.x = p.x + r*std::sin(phif)*std::sin(thetaf);
+      v.y = p.y + r*std::cos(phif);
+      v.z = p.z + r*std::sin(phif)*std::cos(thetaf);
     }
     if (phi == 0) continue;
 
@@ -167,12 +167,12 @@ void Scene::update()
     float t0 = 0.7f * frame;
     float t1 = 1.5f * frame;
     LinearSpace3fa xfm;
-    xfm.vx = Vec3fa(cos(t1),0,sin(t1));
+    xfm.vx = Vec3fa(std::cos(t1),0,std::sin(t1));
     xfm.vy = Vec3fa(0,1,0);
-    xfm.vz = Vec3fa(-sin(t1),0,cos(t1));
+    xfm.vz = Vec3fa(-std::sin(t1),0,std::cos(t1));
     for (int i=0; i<4; i++) {
         float t = t0+i*2.0f*float(pi)/4.0f;
-        instance_xfm[i] = AffineSpace3fa(xfm,2.2f*Vec3fa(+cos(t),0.0f,+sin(t)));
+        instance_xfm[i] = AffineSpace3fa(xfm,2.2f*Vec3fa(+std::cos(t),0.0f,+std::sin(t)));
     }
 
     /* set instance transformations */

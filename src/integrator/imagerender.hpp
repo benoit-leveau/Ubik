@@ -13,6 +13,7 @@
 #include <string>
 #include <cstddef>
 #include "integrator.hpp"
+#include "rng.hpp"
 
 // forward declaration
 class Options;

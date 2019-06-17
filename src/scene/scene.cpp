@@ -135,6 +135,8 @@ unsigned int createGroundPlane (RTCScene scene)
 
 Scene::Scene(const Options &options, Logger &logger) :
     frame(0),
+    x(0), y(0),
+    size(1.0f),
     camera(nullptr)
 {
     camera = Camera::create_camera(options, logger);

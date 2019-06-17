@@ -26,6 +26,7 @@
 #include "arrayiterator.hpp"
 #include "logging.hpp"
 #include "camera.hpp"
+#include "rng.hpp"
 
 #include <cmath>
 
@@ -58,6 +59,7 @@ struct Bucket
     }
 
     std::shared_ptr<Integrator> integrator;
+    RNG rng;
     size_t pos_x, pos_y;
     size_t bucket_width, bucket_height;
     bool copied;
@@ -70,6 +72,7 @@ struct HighBucket : Bucket
     HighBucket(std::shared_ptr<Integrator> integrator, size_t pos_x, size_t pos_y, size_t bucket_width, size_t bucket_height) : 
         Bucket(integrator, pos_x, pos_y, bucket_width, bucket_height)
     {
+        rng.seed(pos_y*bucket_width+pos_x);
         bucketdata = new Pixel[bucket_width*bucket_height]();
         bucket_lock = ATOMIC_VAR_INIT(0);
     }
@@ -90,6 +93,12 @@ struct HighBucket : Bucket
             //    std::atomic_store(&bucket_lock, 0);
             //    return;
             //}
+            double test = rng();
+            if (test > 0.999)
+            {
+                std::cout << "delay on bucket " << pos_x << "-" << pos_y << std::endl;
+                std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+            }
             for (size_t x=0; x<bucket_width; ++x)
             {
                 if (threads_stop)
@@ -281,12 +290,12 @@ void InteractiveRenderer::run()
     bool mouse_button_down = false;
     bool quit = false;
     
-    //scene->update();
+    scene->update();
     
     while(!quit)
     {
         auto t_start = std::chrono::high_resolution_clock::now();
-        //bool skip_sleep = false;
+        bool skip_sleep = false;
         SDL_Event e;
         bool reset_scene = false;
         while (SDL_PollEvent(&e))
@@ -294,27 +303,40 @@ void InteractiveRenderer::run()
             if (e.type == SDL_MOUSEBUTTONDOWN)
             {
                 mouse_button_down = true;
-                //skip_sleep = true;
+                skip_sleep = true;
             }
             else if (e.type == SDL_MOUSEBUTTONUP)
             {
                 mouse_button_down = false;
-                //skip_sleep = true;
+                skip_sleep = true;
             }
             else if (e.type == SDL_MOUSEMOTION)
             {
-                //skip_sleep = true;
+                skip_sleep = true;
                 if (mouse_button_down)
                 {
                     reset_scene = true;
                     std::atomic_store(&current_bucket, -1);
                     SDL_Keymod modifier = SDL_GetModState();
                     if (modifier & KMOD_SHIFT)
-                        scene->camera->rotateOrbit(-0.005f*e.motion.xrel, 0.005f*e.motion.yrel);
+                    {
+                        // nothing
+                    }
                     else if (modifier & KMOD_CTRL)
-                        scene->camera->dolly(-e.motion.yrel);
+                    {
+                        float old_size = scene->size;
+                        float new_size = scene->size - float(e.motion.xrel) / float(width);
+                        
+                        //scene->x = (float(scene->x) / new_size) * old_size;
+                        //scene->y = (float(scene->y) / new_size) * old_size;
+                        
+                        scene->size = new_size;
+                    }
                     else
-                        scene->camera->rotate(-0.005f*e.motion.xrel,0.005f*e.motion.yrel);
+                    {
+                        scene->x += e.motion.xrel;
+                        scene->y += e.motion.yrel;
+                    }
                     std::atomic_fetch_add(&global_scene_version, 1);
                     scene_version = global_scene_version.load();
                     for(auto &bucket : bucket_list){

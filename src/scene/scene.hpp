@@ -28,6 +28,10 @@ public:
     void load();
     void update();
     
+    int x;
+    int y;
+    float size;
+
     //
     RTCDevice rtc_device;
     RTCScene rtc_scene, rtc_scene1;    

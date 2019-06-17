@@ -78,13 +78,15 @@ ImageRenderData::~ImageRenderData()
 
 ImageRender::ImageRender(const Options &options, std::shared_ptr<Scene> scene) : 
     Integrator(options, scene),
-    add_noise(false) // !options.interactive)
+    rng_scene(),
+    add_noise(true) // !options.interactive)
 {
 #ifdef LINUX
     data = new ImageRenderData("./test.tiff");
 #elif OSX
     data = new ImageRenderData("/Users/benoit/Documents/Prog/ubik/bin/image.tiff");
 #endif
+    rng_scene.seed(0);
 }
 
 ImageRender::~ImageRender()
@@ -98,12 +100,10 @@ Color ImageRender::render(size_t x, size_t y, size_t sample)
     RNG rng;
     rng.seed(y*y*y + x*x + scene->frame + sample);
 
-    // trace a ray
-    // ...
-
     // convert (x, y) into image coordinates
-    int img_x = x; // - scene->x;
-    int img_y = y; // - scene->y;
+    int img_x = (x-scene->x-(0.5f*this->width))*scene->size+0.5f*this->width;
+    int img_y = (y-scene->y-(0.5f*this->height))*scene->size+0.5f*this->height;
+
     if ((img_x < 0) || (img_y < 0) || (img_x >= int(this->width)) || (img_y >= int(this->height)))
     {
         return Color(0, 0, 0);
@@ -111,6 +111,7 @@ Color ImageRender::render(size_t x, size_t y, size_t sample)
     img_x = (img_x * data->imageWidth) / this->width;
     img_y = ((this->height-img_y-1) * data->imageLength) / this->height;
 
+    // works with tiled and untiled images
     if (data->tiled)
     {
         size_t tile_x = img_x / data->tileWidth;

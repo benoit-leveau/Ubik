@@ -9,7 +9,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
-
+#include <thread>
 #include <chrono>
 #include <unistd.h>
 
@@ -164,7 +164,7 @@ void TiledRenderer::run()
                 output->update();
         }
         else
-            usleep(200);
+            std::this_thread::sleep_for(std::chrono::microseconds(200));
     }
 
     // end chrono

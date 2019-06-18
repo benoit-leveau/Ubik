@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <atomic>
 #include <thread>
+#include <cmath>
 
 #include <SDL.h>
 
@@ -27,8 +28,6 @@
 #include "logging.hpp"
 #include "camera.hpp"
 #include "rng.hpp"
-
-#include <cmath>
 
 std::atomic<int> global_scene_version = ATOMIC_VAR_INIT(0);
 std::atomic<int> current_bucket = ATOMIC_VAR_INIT(0);
@@ -83,7 +82,7 @@ struct HighBucket : Bucket
         while (std::atomic_compare_exchange_strong(&bucket_lock, &expected, 1))
         {
             expected = 0;
-            usleep(5);
+            std::this_thread::sleep_for(std::chrono::microseconds(5));
         }
         int my_scene_version = global_scene_version.load();
         for (size_t y=0; y<bucket_height; ++y)
@@ -121,7 +120,7 @@ struct HighBucket : Bucket
         while (std::atomic_compare_exchange_strong(&bucket_lock, &expected, 1))
         {
             expected = 0;
-            usleep(5);
+            std::this_thread::sleep_for(std::chrono::microseconds(5));
         }
         this->Bucket::reset();
         // sample = 0;
@@ -143,7 +142,7 @@ struct HighBucket : Bucket
         while (std::atomic_compare_exchange_strong(&bucket_lock, &expected, 1))
         {
             expected = 0;
-            usleep(5);
+            std::this_thread::sleep_for(std::chrono::microseconds(5));
         }
         for (size_t y=0; y<bucket_height; ++y)
         {
@@ -244,7 +243,7 @@ void render_loop(size_t /*thread_index*/, InteractiveRenderer *renderer)
         int bucket_index = std::atomic_fetch_add(&current_bucket, 1);
         if (bucket_index == -1) //  || bucket_index >= int(max_size))
         {
-            usleep(5);
+            std::this_thread::sleep_for(std::chrono::microseconds(5));
             continue;
         }
         
@@ -405,7 +404,7 @@ void InteractiveRenderer::run()
         if (updated)
             display->update();
         else
-            usleep(20);
+            std::this_thread::sleep_for(std::chrono::microseconds(20));
     }
 
     // tell the threads to stop

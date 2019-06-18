@@ -81,11 +81,7 @@ ImageRender::ImageRender(const Options &options, std::shared_ptr<Scene> scene) :
     rng_scene(),
     add_noise(true) // !options.interactive)
 {
-#ifdef LINUX
     data = new ImageRenderData("./test.tiff");
-#elif OSX
-    data = new ImageRenderData("/Users/benoit/Documents/Prog/ubik/bin/image.tiff");
-#endif
     rng_scene.seed(0);
 }
 

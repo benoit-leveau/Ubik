@@ -1,11 +1,5 @@
 #!/bin/bash
 
-DIST=`uname`
-if [ "$DIST" != "Darwin" ];then
-export PATH=/milk/code/dev/tools/centos7/gcc-4.9.2/bin/:$PATH
-source /milk/code/config/bash/expand-variables.sh
-fi
-
 cd `dirname $0`/src
 rm -rf ../build
 mkdir -p ../build
@@ -19,7 +13,6 @@ fi
 
 EMBREE_VERSION=2.17
 
-if [ "$DIST" == "Darwin" ]; then
 OPTIONS="$OPTIONS -DOSX=1"
 SDL_HEADER_DIR="-I/Library/Frameworks/SDL2.framework/Headers"
 GCC_LIB_DIR=
@@ -30,21 +23,6 @@ OPENEXR_HEADER_DIR="-I/Users/benoit/Documents/Prog/libs/include/OpenEXR -I/Users
 SDL_LIB_DIR=""
 SDL_LINK="-framework SDL2"
 TIFF_LINK="-ltiff"
-else
-OPTIONS="$OPTIONS -DLINUX=1"
-SDL_HEADER_DIR="-I/milk/users/benoit/work/thirdparty/sdl2-2.0.9-gcc492-c7/include/SDL2/"
-OPENEXR_HEADER_DIR="-I/milk/code/central/include/centos7/gcc-4.9.2/"
-EMBREE_HEADER_DIR="-I../thirdparty/embree-${EMBREE_VERSION}.0.x86_64.linux/include/"
-TIFF_HEADER_DIR="-I/milk/code/central/include/tiff/4.0.4/"
-GCC_LIB_DIR="-L/milk/code/central/lib/centos7/gcc-4.9.2/"
-OPENEXR_LIB_DIR="-L/milk/code/central/lib/centos7/gcc-4.9.2/"
-OPENEXR_LINK="-lHalf -lIlmImf"
-SDL_LIB_DIR="-L/milk/users/benoit/work/thirdparty/sdl2-2.0.9-gcc492-c7/lib/"
-SDL_LINK="-lSDL2"
-TIFF_LINK="-ltiff"
-EMBREE_LIB_DIR="-L/milk/code/central/lib/centos7/gcc-4.9.2/"
-EMBREE_LINK="-Wl,-rpath-link,/milk/code/central/lib/centos7/gcc-4.9.2/ -lembree"
-fi
 
 OPTIONS="$OPTIONS -O3 -std=c++11" # -Wall -Wextra -pedantic
 INCLUDE_DIR="-I./ -Idriver -Irenderer -Iintegrator -Isampler -Iutils -Iscene -Icamera -I../thirdparty/ctpl -I../thirdparty/optparse ${SDL_HEADER_DIR} ${OPENEXR_HEADER_DIR} ${TIFF_HEADER_DIR} ${EMBREE_HEADER_DIR}"

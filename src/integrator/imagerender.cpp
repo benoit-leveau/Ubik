@@ -78,11 +78,9 @@ ImageRenderData::~ImageRenderData()
 
 ImageRender::ImageRender(const Options &options, std::shared_ptr<Scene> scene) : 
     Integrator(options, scene),
-    rng_scene(),
     add_noise(true) // !options.interactive)
 {
     data = new ImageRenderData("./test.tiff");
-    rng_scene.seed(0);
 }
 
 ImageRender::~ImageRender()

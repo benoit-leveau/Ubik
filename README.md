@@ -12,9 +12,16 @@ Each time a pixel of the image is sampled, a random noise is added to the RGB va
 ## Tiled rendering
 ![video](doc/capture_tiled_rendering.gif "Tiled Rendering")
 
+# External Dependencies:
+* OpenEXR (2.0+): openexr.com
+* SDL (2.0+): https://www.libsdl.org
+* TIFF (3.9+): https://www.adobe.io/open/standards/TIFF.html
+* Embree (2.17+): https://www.embree.org
+
+# Other Dependencies:
+* getMemorySize by David Robert Nadeau (http://NadeauSoftware.com/)
+* OptionbParser by Johannes Weiﬂl (http://github.com/weisslj/cpp-optparse.git)
+* ctpl by Vitaliy Vitsentiy (https://github.com/vit-vit/CTPL)
+
 # References
-* OpenEXR: openexr.com
-* SDL: https://www.libsdl.org
-* TIFF: https://www.adobe.io/open/standards/TIFF.html
-* Embree: https://www.embree.org
 * Test image "Kodak Image 21" from http://r0k.us/graphics/kodak/kodim21.html

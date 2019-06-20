@@ -1,6 +1,6 @@
 [submodule "thirdparty/ctpl"]
 	path = thirdparty/ctpl
-	url = git@github.com:vit-vit/CTPL.git
+	url = https://github.com/vit-vit/CTPL
 [submodule "thirdparty/cpp-optparse"]
 	path = thirdparty/cpp-optparse
 	url = https://github.com/weisslj/cpp-optparse

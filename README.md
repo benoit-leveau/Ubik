@@ -27,13 +27,13 @@ The project is built with cmake. Cmake will try to locate the following librarie
 mkdir -p build
 cd build
 cmake .. \
-    -DSDL2_INCLUDE_DIRS=/code/thirdparty/sdl2-2.0.9/include/SDL2/ \
-    -DSDL2_LIBS=/code/thirdparty/sdl2-2.0.9/lib/gcc-6.3.0/libSDL2.so \
-    -DTIFF_LIBRARY:FILEPATH=/code/thirdparty/tiff-4.0.4/lib/gcc-6.3.0/libtiff.so \
-    -DTIFF_INCLUDE_DIR=/code/thirdparty/tiff-4.0.4/include/ \
-    -DOPENEXR_INCLUDE_DIR=/code/thirdparty/openexr-2.2.0/include/ \
-    -DOPENEXR_Half_LIBRARY:FILEPATH=/code/thirdparty/openexr-2.2.0/lib/gcc-6.3.0/libHalf.so \
-    -DOPENEXR_IlmImf_LIBRARY:FILEPATH=/code/thirdparty/openexr-2.2.0/lib/gcc-6.3.0/libIlmImf.so \
+    -DSDL2_INCLUDE_DIRS=/code/thirdparty/sdl2/2.0.9/include/SDL2/ \
+    -DSDL2_LIBS=/code/thirdparty/sdl2/2.0.9/lib/gcc-6.3.0/libSDL2.so \
+    -DTIFF_LIBRARY:FILEPATH=/code/thirdparty/tiff/4.0.4/lib/gcc-6.3.0/libtiff.so \
+    -DTIFF_INCLUDE_DIR=/code/thirdparty/tiff/4.0.4/include/ \
+    -DOPENEXR_INCLUDE_DIR=/code/thirdparty/openexr/2.2.0/include/ \
+    -DOPENEXR_Half_LIBRARY:FILEPATH=/code/thirdparty/openexr/2.2.0/lib/gcc-6.3.0/libHalf.so \
+    -DOPENEXR_IlmImf_LIBRARY:FILEPATH=/code/thirdparty/openexr/2.2.0/lib/gcc-6.3.0/libIlmImf.so \
     -DEMBREE_INCLUDE_DIR=/code/thirdparty/embree/3.5.2/include \
     -DEMBREE_LIBRARY=/code/thirdparty/embree/3.5.2/lib/gcc-6.3.0/libembree.so
 make

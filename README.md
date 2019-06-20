@@ -41,7 +41,7 @@ make
 Once built, the executable will be located in the project's *bin* folder. 
 
 # External Dependencies:
-* OpenEXR (2.0+): openexr.com
+* OpenEXR (2.0+): https://www.openexr.com/
 * SDL (2.0+): https://www.libsdl.org
 * TIFF (3.9+): https://www.adobe.io/open/standards/TIFF.html
 * Embree (2.17+): https://www.embree.org

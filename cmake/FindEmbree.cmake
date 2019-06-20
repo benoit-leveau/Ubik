@@ -46,3 +46,5 @@ find_package_handle_standard_args(Embree
     VERSION_VAR
         EMBREE_VERSION
 )
+
+set(CMAKE_EXE_LINKER_FLAGS "-lpthread")

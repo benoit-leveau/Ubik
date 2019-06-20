@@ -39,7 +39,7 @@ include_directories(
   src/scene
   src/utils
   thirdparty/ctpl
-  thirdparty/optparse
+  thirdparty/cpp-optparse
   ${CMAKE_BINARY_DIR}
 )
 
@@ -70,7 +70,7 @@ add_executable(
   src/sampler/sampler.cpp
   src/scene/scene.cpp
   src/utils/arrayiterator.cpp
-  thirdparty/optparse/OptionParser.cpp
+  thirdparty/cpp-optparse/OptionParser.cpp
   thirdparty/nadeau/getMemorySize.cpp
 )
 

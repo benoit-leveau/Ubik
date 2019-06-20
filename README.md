@@ -19,9 +19,9 @@ Each time a pixel of the image is sampled, a random noise is added to the RGB va
 * Embree (2.17+): https://www.embree.org
 
 # Other Dependencies:
-* getMemorySize by David Robert Nadeau (http://NadeauSoftware.com/)
-* OptionbParser by Johannes Weiﬂl (http://github.com/weisslj/cpp-optparse.git)
-* ctpl by Vitaliy Vitsentiy (https://github.com/vit-vit/CTPL)
+* getMemorySize.cpp by David Robert Nadeau (http://NadeauSoftware.com/) is provided under the Creative Commons Attribution 3.0 Unported License (http://creativecommons.org/licenses/by/3.0/deed.en_US)
+* OptionbParser by Johannes Weiﬂl (http://github.com/weisslj/cpp-optparse.git), added as a git submodule
+* ctpl by Vitaliy Vitsentiy (https://github.com/vit-vit/CTPL), added as a git submodule
 
 # References
 * Test image "Kodak Image 21" from http://r0k.us/graphics/kodak/kodim21.html

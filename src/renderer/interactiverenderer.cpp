@@ -27,7 +27,6 @@
 #include "arrayiterator.hpp"
 #include "logging.hpp"
 #include "camera.hpp"
-#include "rng.hpp"
 
 std::atomic<int> global_scene_version = ATOMIC_VAR_INIT(0);
 std::atomic<int> current_bucket = ATOMIC_VAR_INIT(0);
@@ -58,7 +57,6 @@ struct Bucket
     }
 
     std::shared_ptr<Integrator> integrator;
-    RNG rng;
     size_t pos_x, pos_y;
     size_t bucket_width, bucket_height;
     bool copied;
@@ -71,7 +69,6 @@ struct HighBucket : Bucket
     HighBucket(std::shared_ptr<Integrator> integrator, size_t pos_x, size_t pos_y, size_t bucket_width, size_t bucket_height) : 
         Bucket(integrator, pos_x, pos_y, bucket_width, bucket_height)
     {
-        rng.seed(pos_y*bucket_width+pos_x);
         bucketdata = new Pixel[bucket_width*bucket_height]();
         bucket_lock = ATOMIC_VAR_INIT(0);
     }
@@ -92,12 +89,6 @@ struct HighBucket : Bucket
             //    std::atomic_store(&bucket_lock, 0);
             //    return;
             //}
-            double test = rng();
-            if (test > 0.999)
-            {
-                std::cout << "delay on bucket " << pos_x << "-" << pos_y << std::endl;
-                std::this_thread::sleep_for(std::chrono::milliseconds(5000));
-            }
             for (size_t x=0; x<bucket_width; ++x)
             {
                 if (threads_stop)

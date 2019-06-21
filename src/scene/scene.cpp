@@ -48,6 +48,8 @@ unsigned int g_instance1 = -1;
 unsigned int g_instance2 = -1;
 unsigned int g_instance3 = -1;
 AffineSpace3fa instance_xfm[4];
+LinearSpace3fa normal_xfm[4];
+Vec3fa colors[4][4];
 
 const int numPhi = 20;
 const int numTheta = 2*numPhi;
@@ -159,8 +161,32 @@ void Scene::load()
     g_instance1 = rtcNewInstance2(rtc_scene,rtc_scene1,1);
     g_instance2 = rtcNewInstance2(rtc_scene,rtc_scene1,1);
     g_instance3 = rtcNewInstance2(rtc_scene,rtc_scene1,1);
+
+    /* set all colors */
+    colors[0][0] = Vec3fa(0.25f, 0.f, 0.f);
+    colors[0][1] = Vec3fa(0.50f, 0.f, 0.f);
+    colors[0][2] = Vec3fa(0.75f, 0.f, 0.f);
+    colors[0][3] = Vec3fa(1.00f, 0.f, 0.f);
+    
+    colors[1][0] = Vec3fa(0.f, 0.25f, 0.f);
+    colors[1][1] = Vec3fa(0.f, 0.50f, 0.f);
+    colors[1][2] = Vec3fa(0.f, 0.75f, 0.f);
+    colors[1][3] = Vec3fa(0.f, 1.00f, 0.f);
+    
+    colors[2][0] = Vec3fa(0.f, 0.f, 0.25f);
+    colors[2][1] = Vec3fa(0.f, 0.f, 0.50f);
+    colors[2][2] = Vec3fa(0.f, 0.f, 0.75f);
+    colors[2][3] = Vec3fa(0.f, 0.f, 1.00f);
+    
+    colors[3][0] = Vec3fa(0.25f, 0.25f, 0.f);
+    colors[3][1] = Vec3fa(0.50f, 0.50f, 0.f);
+    colors[3][2] = Vec3fa(0.75f, 0.75f, 0.f);
+    colors[3][3] = Vec3fa(1.00f, 1.00f, 0.f);
+
     createGroundPlane(rtc_scene);
+
     update();
+
     rtcCommit(rtc_scene);
 }
 
@@ -176,6 +202,10 @@ void Scene::update()
         float t = t0+i*2.0f*float(pi)/4.0f;
         instance_xfm[i] = AffineSpace3fa(xfm,2.2f*Vec3fa(+std::cos(t),0.0f,+std::sin(t)));
     }
+
+    /* calculate transformations to properly transform normals */
+    for (int i=0; i<4; i++)
+        normal_xfm[i] = transposed(rcp(instance_xfm[i].l));
 
     /* set instance transformations */
     rtcSetTransform2(rtc_scene,g_instance0,RTC_MATRIX_COLUMN_MAJOR_ALIGNED16,(float*)&instance_xfm[0],0);

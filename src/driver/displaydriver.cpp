@@ -25,7 +25,7 @@ DisplayDriver::DisplayDriver(size_t width, size_t height, Logger &logger) : Outp
         SDL_Quit();
 	}
 	//Now create a window
-	window = SDL_CreateWindow("Test", 100, 100, width, height, SDL_WINDOW_SHOWN);
+	window = SDL_CreateWindow("Ubik Renderer", 100, 100, width, height, SDL_WINDOW_SHOWN);
 	//Make sure creating our window went ok
 	if (window == nullptr){
 		std::string message = std::string("SDL_CreateWindow Error: ") + SDL_GetError();

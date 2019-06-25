@@ -28,9 +28,10 @@ int main(int argc, char**argv)
     parser.add_option_group(group);
 
     // Add choice for Sampler + options for each sampler
-    char const* const samplers[] = { "fixed" };
-    parser.add_option("--sampler").choices(&samplers[0], &samplers[1]).set_default(samplers[0]).help("Sets the sampler algorithm. default: %default");
+    char const* const samplers[] = { "fixed", "adaptative" };
+    parser.add_option("--sampler").choices(&samplers[0], &samplers[2]).set_default(samplers[0]).help("Sets the sampler algorithm. default: %default");
     FixedSampler::createOptions(parser);
+    AdaptativeSampler::createOptions(parser);
 
     // Add choice for Integrator + options for each integrator
     char const* const integrators[] = { "smallpt", "pathtracer", "image" };

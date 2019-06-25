@@ -61,11 +61,13 @@ add_executable(
   src/integrator/imagerender.cpp
   src/integrator/integrator.cpp
   src/integrator/pathtracer.cpp
+  src/integrator/smallpt.cpp
   src/primitive/primitive.cpp
   src/renderer/bucket.cpp
   src/renderer/interactiverenderer.cpp
   src/renderer/renderer.cpp
   src/renderer/tiledrenderer.cpp
+  src/sampler/adaptativesampler.cpp
   src/sampler/fixedsampler.cpp
   src/sampler/sampler.cpp
   src/scene/scene.cpp

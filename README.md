@@ -53,3 +53,4 @@ Once built, the executable will be located in the project's *bin* folder.
 
 # References
 * Test image "Kodak Image 21" from http://r0k.us/graphics/kodak/kodim21.html
+* SmallPt integrator algorithm adapted from http://www.kevinbeason.com/smallpt/

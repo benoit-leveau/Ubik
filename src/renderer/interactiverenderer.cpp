@@ -309,23 +309,19 @@ void InteractiveRenderer::run()
                     std::atomic_store(&current_bucket, -1);
                     SDL_Keymod modifier = SDL_GetModState();
                     if (modifier & KMOD_SHIFT)
-                    {
-                        // nothing
+                        scene->camera->rotateOrbit(-0.005f*e.motion.xrel, 0.005f*e.motion.yrel);
+                    else if (modifier & KMOD_CTRL){
+                        // for 2d scenes
+                        scene->size = scene->size - float(e.motion.xrel) / float(width);
+                        // for 3d scenes
+                        scene->camera->dolly(-e.motion.yrel);
                     }
-                    else if (modifier & KMOD_CTRL)
-                    {
-                        float old_size = scene->size;
-                        float new_size = scene->size - float(e.motion.xrel) / float(width);
-                        
-                        //scene->x = (float(scene->x) / new_size) * old_size;
-                        //scene->y = (float(scene->y) / new_size) * old_size;
-                        
-                        scene->size = new_size;
-                    }
-                    else
-                    {
+                    else {
+                        // for 2d scenes
                         scene->x += e.motion.xrel;
                         scene->y += e.motion.yrel;
+                        // for 3d scenes
+                        scene->camera->rotate(-0.005f*e.motion.xrel,0.005f*e.motion.yrel);
                     }
                     std::atomic_fetch_add(&global_scene_version, 1);
                     scene_version = global_scene_version.load();

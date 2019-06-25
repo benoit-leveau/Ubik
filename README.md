@@ -4,17 +4,30 @@ Modular design to allow for experimentations, so it's easy to implement a new Sa
 
 **Current status:**
 * Renderer:
-  * tiled rendering with several traversal algorightms 
+  * tiled rendering with several traversal algorightms
   * interactive rendering using the mouse and key modifiers
 * Driver: 
   * display driver using SDL
   * output driver writing out OpenEXR files
 * Sampler:
   * fixed sampling
+  * adaptative sampling with threshold
 * Integrator:
   * WIP embree path tracer
+  * "smallpt" algorithm
   * dummy image render integrator to test the rest of the application (reads a TIFF file from disk and "renders" a noisy version of it, ie. each time a pixel of the image is sampled a random noise is added to the RGB value - the idea being that with enough samples the noise should be averaged out)
-  
+
+# Usage
+
+You can specify the sampler, integrator and renderer by name on the command line.
+
+```
+ubik --renderer=tiled --sampler=fixed --samples=2 --integrator=smallpt --width=640 --height=480 --show-window
+```
+
+This will produce the following render:
+![image](doc/ubik_tiled_smallpt.png "Example render")
+
 # Examples
 
 These examples are using the dummy image render integrator. They will be replaced by a proper 3d path render when it's implemented.

@@ -7,7 +7,7 @@
 */
 
 #include "imagerender.hpp"
-#include "color.hpp"
+#include "radiance.hpp"
 #include "scene.hpp"
 #include "rng.hpp"
 #include "options.hpp"
@@ -88,7 +88,7 @@ ImageRender::~ImageRender()
     delete data;
 }
 
-Color ImageRender::render(size_t x, size_t y, size_t sample)
+Radiance ImageRender::render(size_t x, size_t y, size_t sample)
 {
     // initialize the RNG in a deterministic way for each sample
     RNG rng;
@@ -100,7 +100,7 @@ Color ImageRender::render(size_t x, size_t y, size_t sample)
 
     if ((img_x < 0) || (img_y < 0) || (img_x >= int(this->width)) || (img_y >= int(this->height)))
     {
-        return Color(0, 0, 0);
+        return Radiance(0, 0, 0);
     }
     img_x = (img_x * data->imageWidth) / this->width;
     img_y = ((this->height-img_y-1) * data->imageLength) / this->height;
@@ -121,7 +121,7 @@ Color ImageRender::render(size_t x, size_t y, size_t sample)
         float r = TIFFGetR(abgr) / 255.0;
         float g = TIFFGetG(abgr) / 255.0;
         float b = TIFFGetB(abgr) / 255.0;
-        return Color(r, g, b);
+        return Radiance(r, g, b);
     }
     else
     {
@@ -140,6 +140,6 @@ Color ImageRender::render(size_t x, size_t y, size_t sample)
             g = r + (g-r) * std::min(1.0, (sample/10.0));
             b = r + (b-r) * std::min(1.0, (sample/10.0));
         }
-        return Color(r, g, b);
+        return Radiance(r, g, b);
     }
 }

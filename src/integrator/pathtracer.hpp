@@ -17,7 +17,7 @@
 
 // forward declaration
 class Options;
-class Color;
+class Radiance;
 class Scene;
 class Vector;
 class RNG;
@@ -28,10 +28,8 @@ public:
     PathTracer(const Options &options, std::shared_ptr<Scene> scene);
     virtual ~PathTracer();
 
-    virtual Color render(size_t x, size_t y, size_t sample);
+    virtual Radiance render(size_t x, size_t y, size_t sample);
 private:
-    Color get_radiance(Vector view_position, Vector sample_direction, const RNG &rng);
-
     double width64;
     double height64;
 };

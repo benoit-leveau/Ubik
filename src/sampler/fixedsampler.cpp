@@ -10,6 +10,7 @@
 #include "fixedsampler.hpp"
 #include "options.hpp"
 #include "integrator.hpp"
+#include "radiance.hpp"
 #include "color.hpp"
 
 
@@ -25,11 +26,11 @@ FixedSampler::~FixedSampler()
 
 Color FixedSampler::render(size_t x, size_t y)
 {
-    Color color;
+    Radiance radiance;
     for (size_t sample=0; sample<num_samples; ++sample)
     {
-        color += integrator->render(x, y, sample);
+        radiance += integrator->render(x, y, sample);
     }
-    color /= float(num_samples);
-    return color;
+    return Color(radiance / double(num_samples));
+}
 }

@@ -17,7 +17,7 @@
 
 // forward declaration
 class Options;
-class Color;
+class Radiance;
 class Scene;
 class ImageRenderData;
 
@@ -28,7 +28,7 @@ public:
     ImageRender(const Options &options, std::shared_ptr<Scene> scene);
     virtual ~ImageRender();
 
-    virtual Color render(size_t x, size_t y, size_t sample);
+    virtual Radiance render(size_t x, size_t y, size_t sample);
 private:
     ImageRenderData *data;
     bool add_noise;

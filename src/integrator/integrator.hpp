@@ -14,7 +14,7 @@
 
 // forward declaration
 class Options;
-class Color;
+class Radiance;
 class Scene;
 
 class Integrator
@@ -23,7 +23,7 @@ public:
     Integrator(const Options &options, std::shared_ptr<Scene> scene);
     virtual ~Integrator();
 
-    virtual Color render(size_t x, size_t y, size_t sample) = 0;
+    virtual Radiance render(size_t x, size_t y, size_t sample) = 0;
 
 protected:
     size_t width;

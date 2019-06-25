@@ -40,7 +40,7 @@ PathTracer::PathTracer(const Options &options, std::shared_ptr<Scene> scene) : I
 PathTracer::~PathTracer()
 {}
 
-Color PathTracer::render(size_t x, size_t y, size_t sample)
+Radiance PathTracer::render(size_t x, size_t y, size_t sample)
 {
     ISPCCamera camera = scene->camera->getISPCCamera(this->width, this->height);
     //camera.from = Vec3fa(2.244145155f, 1.310973883f, 0.09447964281f);
@@ -108,9 +108,4 @@ Color PathTracer::render(size_t x, size_t y, size_t sample)
         color = color + diffuse*clamp(-dot(lightDir,Ns),0.0f,1.0f);
 
     return color;
-}
-
-Color get_radiance()
-{
-    return Color();
 }

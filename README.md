@@ -1,10 +1,23 @@
 # Ubik
-Path-tracer using embree / SDL / OpenEXR
+WIP C++ Path-tracer framework using SDL for interactivity / display.
+Modular design to allow for experimentations, so it's easy to implement a new Sampler, Integrator or Renderer.
 
+**Current status:**
+* Renderer:
+  * tiled rendering with several traversal algorightms 
+  * interactive rendering using the mouse and key modifiers
+* Driver: 
+  * display driver using SDL
+  * output driver writing out OpenEXR files
+* Sampler:
+  * fixed sampling
+* Integrator:
+  * WIP embree path tracer
+  * dummy image render integrator to test the rest of the application (reads a TIFF file from disk and "renders" a noisy version of it, ie. each time a pixel of the image is sampled a random noise is added to the RGB value - the idea being that with enough samples the noise should be averaged out)
+  
 # Examples
 
-These examples are using a dummy integrator that opens a TIFF file from disk and "render" it.
-Each time a pixel of the image is sampled, a random noise is added to the RGB value. Over time, the noise should be averaged out.
+These examples are using the dummy image render integrator. They will be replaced by a proper 3d path render when it's implemented.
 
 ## Interactive Rendering
 ![video](doc/capture_interactive.gif "Interactive Rendering")

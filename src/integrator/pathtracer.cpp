@@ -59,6 +59,7 @@ Radiance PathTracer::render(size_t x, size_t y, size_t sample)
     ray.tfar = inf;
     ray.geomID = RTC_INVALID_GEOMETRY_ID;
     ray.primID = RTC_INVALID_GEOMETRY_ID;
+    ray.instID = -1;
     ray.mask = -1;
     ray.time = 0;
 

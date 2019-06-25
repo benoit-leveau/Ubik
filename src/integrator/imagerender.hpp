@@ -25,7 +25,7 @@ class ImageRenderData;
 class ImageRender : public Integrator
 {
 public:
-    ImageRender(const Options &options, std::shared_ptr<Scene> scene);
+    ImageRender(const Options &options, std::shared_ptr<Scene> scene, Logger &logger);
     virtual ~ImageRender();
 
     virtual Radiance render(size_t x, size_t y, size_t sample);

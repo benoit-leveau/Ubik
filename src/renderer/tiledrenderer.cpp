@@ -44,8 +44,8 @@ void render_task(size_t threadid, Task *task)
 }
 
 
-TiledRenderer::TiledRenderer(std::shared_ptr<Scene> scene, const Options &options, Logger &logger) : 
-    Renderer(scene, options, logger),
+TiledRenderer::TiledRenderer(std::shared_ptr<Scene> scene, std::shared_ptr<Integrator> integrator, std::shared_ptr<Sampler> sampler, const Options &options, Logger &logger) : 
+    Renderer(scene, integrator, sampler, options, logger),
     bucketsize(options.bucketsize),
     display(nullptr),
     image_mode(ArrayIterationMode::BOTTOMLEFT)

@@ -34,7 +34,7 @@ __forceinline bool   eq (const Vec3fa& a, const Vec3fa& b) { return a == b; }
 __forceinline bool   ne (const Vec3fa& a, const Vec3fa& b) { return a != b; }
 }
 
-PathTracer::PathTracer(const Options &options, std::shared_ptr<Scene> scene) : Integrator(options, scene), width64(width), height64(height)
+PathTracer::PathTracer(const Options &options, std::shared_ptr<Scene> scene, Logger &logger) : Integrator(options, scene, logger), width64(width), height64(height)
 {}
 
 PathTracer::~PathTracer()

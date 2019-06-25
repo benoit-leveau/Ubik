@@ -25,11 +25,11 @@ class Logger;
 class Renderer
 {
 public:
-    Renderer(std::shared_ptr<Scene> scene, const Options &options, Logger &logger);
+    Renderer(std::shared_ptr<Scene> scene, std::shared_ptr<Integrator> integrator, std::shared_ptr<Sampler> sampler, const Options &options, Logger &logger);
     virtual ~Renderer();
 
     virtual void run() = 0;
-    static std::unique_ptr<Renderer> create_renderer(std::shared_ptr<Scene> scene, const Options &options, Logger &logger);
+    static std::unique_ptr<Renderer> create_renderer(std::shared_ptr<Scene> scene, std::shared_ptr<Integrator> integrator, std::shared_ptr<Sampler> sampler, const Options &options, Logger &logger);
 
 // protected:
     Logger &logger;

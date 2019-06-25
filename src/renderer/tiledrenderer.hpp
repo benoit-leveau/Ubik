@@ -22,12 +22,14 @@ class OutputDriver;
 class DisplayDriver;
 enum class ArrayIterationMode;
 class Logger;
+class Integrator;
+class Sampler;
 
 
 class TiledRenderer : public Renderer
 {
 public:
-    TiledRenderer(std::shared_ptr<Scene> scene, const Options &options, Logger &logger);
+    TiledRenderer(std::shared_ptr<Scene> scene, std::shared_ptr<Integrator> integrator, std::shared_ptr<Sampler> sampler, const Options &options, Logger &logger);
     virtual ~TiledRenderer();
 
     virtual void run();

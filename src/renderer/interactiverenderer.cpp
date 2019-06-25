@@ -249,8 +249,8 @@ void render_loop(size_t /*thread_index*/, InteractiveRenderer *renderer)
     }
 }
 
-InteractiveRenderer::InteractiveRenderer(std::shared_ptr<Scene> scene, const Options &options, Logger &logger) :
-    Renderer(scene, options, logger),
+InteractiveRenderer::InteractiveRenderer(std::shared_ptr<Scene> scene, std::shared_ptr<Integrator> integrator, std::shared_ptr<Sampler> sampler, const Options &options, Logger &logger) :
+    Renderer(scene, integrator, sampler, options, logger),
     bucketsize(options.bucketsize),
     progressive_tiles(0),
     full_tiles(0)

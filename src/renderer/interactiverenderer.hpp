@@ -17,12 +17,14 @@
 class OutputDriver;
 class DisplayDriver;
 class Logger;
+class Integrator;
+class Sampler;
 
 
 class InteractiveRenderer : public Renderer
 {
 public:
-    InteractiveRenderer(std::shared_ptr<Scene> scene, const Options &options, Logger &logger);
+    InteractiveRenderer(std::shared_ptr<Scene> scene, std::shared_ptr<Integrator> integrator, std::shared_ptr<Sampler> sampler, const Options &options, Logger &logger);
     virtual ~InteractiveRenderer();
 
     virtual void run();

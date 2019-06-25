@@ -76,8 +76,8 @@ ImageRenderData::~ImageRenderData()
     TIFFClose(tif);
 }
 
-ImageRender::ImageRender(const Options &options, std::shared_ptr<Scene> scene) : 
-    Integrator(options, scene),
+ImageRender::ImageRender(const Options &options, std::shared_ptr<Scene> scene, Logger &logger) : 
+    Integrator(options, scene, logger),
     add_noise(true) // !options.interactive)
 {
     data = new ImageRenderData("./test.tiff");

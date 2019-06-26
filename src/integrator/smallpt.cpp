@@ -11,6 +11,8 @@
 #include "radiance.hpp"
 #include "rng.hpp"
 #include "scene.hpp"
+#include "camera.hpp"
+#include "perspectivecamera.hpp"
 
 #include <math.h>   // smallpt, a Path Tracer by Kevin Beason, 2008
 #include <stdlib.h> // Make : g++ -O3 -fopenmp smallpt.cpp -o smallpt
@@ -115,12 +117,18 @@ Radiance SmallPt::render(size_t x, size_t y, size_t sample, unsigned short *Xi)
     // TODO: add RNG to the render function (initialized by the sampler)
     //RNG rng;
     //rng.seed(y*y*y + x*x + scene->frame + sample);
+    
 
     size_t samps = 1;
-    Ray cam(Vec(50,52,295.6), Vec(0,-0.042612,-1).norm()); // cam pos, dir
+    
+    // Ray cam(Vec(50,52,295.6), Vec(0,-0.042612,-1).norm()); // cam pos, dir
+    PerspectiveCamera *pcam = dynamic_cast<PerspectiveCamera *>(scene->camera.get());
+    auto dir = normalize(pcam->to - pcam->from);
+    Ray cam(Vec(pcam->from.x,pcam->from.y,pcam->from.z),
+            Vec(dir.x, dir.y, dir.z));
+    
     Vec cx=Vec(width64*.5135/height64);
     Vec cy=(cx%cam.d).norm()*.5135;
-    //Vec r;
     
     //for (int sy=0; sy<2; sy++)     // 2x2 subpixel rows
     //  for (int sx=0; sx<2; sx++, r=Vec()){// 2x2 subpixel cols
@@ -133,6 +141,7 @@ Radiance SmallPt::render(size_t x, size_t y, size_t sample, unsigned short *Xi)
     return Radiance(r.x, r.y, r.z);
 
     /*
+    Vec r;
     Vec c;
     for (int sy=0; sy<2; sy++)     // 2x2 subpixel rows
         for (int sx=0; sx<2; sx++, r=Vec()){// 2x2 subpixel cols

@@ -125,11 +125,11 @@ Radiance SmallPt::render(size_t x, size_t y, size_t sample)
     //for (int sy=0; sy<2; sy++)     // 2x2 subpixel rows
     //  for (int sx=0; sx<2; sx++, r=Vec()){// 2x2 subpixel cols
     //for (int s=0; s<samps; s++){
-    double r1=2*erand48(Xi), dx=r1<1 ? sqrt(r1)-1: 1-sqrt(2-r1);
-    double r2=2*erand48(Xi), dy=r2<1 ? sqrt(r2)-1: 1-sqrt(2-r2);
+    double r1=2*rng(), dx=r1<1 ? sqrt(r1)-1: 1-sqrt(2-r1);
+    double r2=2*rng(), dy=r2<1 ? sqrt(r2)-1: 1-sqrt(2-r2);
     Vec d = cx*( ( (1.0 + dx)/2 + x)/width64 - .5) +
             cy*( ( (1.0 + dy)/2 + (height64-y-1))/height64 - .5) + cam.d;
-    Vec r = radiance(Ray(cam.o+d*140,d.norm()),0,Xi);
+    Vec r = radiance(Ray(cam.o+d*140,d.norm()),0,rng);
     return Radiance(r.x, r.y, r.z);
 
     /*
@@ -145,7 +145,7 @@ Radiance SmallPt::render(size_t x, size_t y, size_t sample)
                 r = r + radiance(Ray(cam.o+d*140,d.norm()),0,rng)*(1./samps);
             }
             // Camera rays are pushed ^^^^^ forward to start in interior
-            c = c + Vec(/*clamp*/(r.x), /*clamp*/(r.y), /*clamp*/(r.z))*.25;
+            c = c + Vec(/*clamp*-/(r.x), /*clamp*-/(r.y), /*clamp*-/(r.z))*.25;
         }
     
     return Radiance(c.x, c.y, c.z);

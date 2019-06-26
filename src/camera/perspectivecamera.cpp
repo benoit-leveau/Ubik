@@ -17,7 +17,8 @@
 using namespace embree;
 
 PerspectiveCamera::PerspectiveCamera(const Options &options) :
-    Camera(options), from(0.0001f,0.0001f,-3.0f), to(0,0,0), up(0,1,0), fov(90)
+    //Camera(options), from(0.0001f,0.0001f,-3.0f), to(0,0,0), up(0,1,0), fov(90)
+    Camera(options), from(50,52,295.6), to(50,47.7388,195.60), up(0,1,0), fov(90)
 {}
 
 PerspectiveCamera::~PerspectiveCamera()

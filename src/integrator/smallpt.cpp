@@ -64,14 +64,6 @@ Sphere spheres[] = {//Scene: radius, position, emission, color, material
   Sphere(600, Vec(50,681.6-.27,81.6),Vec(12,12,12),  Vec(), DIFF) //Lite
 };
 
-inline double clamp(double x){
-    return x<0 ? 0 : x>1 ? 1 : x;
-}
-
-inline int toInt(double x){
-    return int(pow(clamp(x),1/2.2)*255+.5);
-}
-
 inline bool intersect(const Ray &r, double &t, int &id){
   double n=sizeof(spheres)/sizeof(Sphere), d, inf=t=1e20;
   for(int i=int(n);i--;) if((d=spheres[i].intersect(r))&&d<t){t=d;id=i;}

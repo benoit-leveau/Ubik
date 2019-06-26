@@ -40,7 +40,7 @@ PathTracer::PathTracer(const Options &options, std::shared_ptr<Scene> scene, Log
 PathTracer::~PathTracer()
 {}
 
-Radiance PathTracer::render(size_t x, size_t y, size_t sample)
+Radiance PathTracer::render(size_t x, size_t y, size_t sample, unsigned short *Xi)
 {
     ISPCCamera camera = scene->camera->getISPCCamera(this->width, this->height);
     //camera.from = Vec3fa(2.244145155f, 1.310973883f, 0.09447964281f);

@@ -89,13 +89,14 @@ struct HighBucket : Bucket
             //    std::atomic_store(&bucket_lock, 0);
             //    return;
             //}
+            unsigned short Xi[3]={0,0,y*y*y};
             for (size_t x=0; x<bucket_width; ++x)
             {
                 if (threads_stop)
                     return;
                 size_t offset = y*bucket_width+x;
                 Pixel &pixel(bucketdata[offset]);
-                pixel.color += integrator->render(x+pos_x, y+pos_y, pixel.sample);
+                pixel.color += integrator->render(x+pos_x, y+pos_y, pixel.sample, Xi);
                 pixel.sample += 1;
             }
         }
@@ -165,7 +166,8 @@ struct LowBucket : Bucket
     virtual void render()
     {
         int my_scene_version = global_scene_version.load();
-        color = integrator->render(center_x, center_y, 0);
+        unsigned short Xi[3] = {0,0,center_y*center_y*center_y+center_x*center_x};
+        color = integrator->render(center_x, center_y, 0, Xi);
         copied = false;
         completed = true;
         scene_version = my_scene_version;

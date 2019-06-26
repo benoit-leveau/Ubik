@@ -88,7 +88,7 @@ ImageRender::~ImageRender()
     delete data;
 }
 
-Radiance ImageRender::render(size_t x, size_t y, size_t sample)
+Radiance ImageRender::render(size_t x, size_t y, size_t sample, unsigned short *Xi)
 {
     // initialize the RNG in a deterministic way for each sample
     RNG rng;

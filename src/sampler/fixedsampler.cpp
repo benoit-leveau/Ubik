@@ -27,9 +27,10 @@ FixedSampler::~FixedSampler()
 Color FixedSampler::render(size_t x, size_t y)
 {
     Radiance radiance;
+    unsigned short Xi[3]={0,0,y*y*y+x*x};
     for (size_t sample=0; sample<num_samples; ++sample)
     {
-        radiance += integrator->render(x, y, sample);
+        radiance += integrator->render(x, y, sample, Xi);
     }
     return Color(radiance / double(num_samples));
 }

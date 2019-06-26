@@ -24,7 +24,7 @@ public:
     Integrator(const Options &options, std::shared_ptr<Scene> scene, Logger &logger);
     virtual ~Integrator();
 
-    virtual Radiance render(size_t x, size_t y, size_t sample) = 0;
+    virtual Radiance render(size_t x, size_t y, size_t sample, unsigned short *Xi) = 0;
 
     static std::shared_ptr<Integrator> create_integrator(const Options &options, std::shared_ptr<Scene> scene, Logger &logger);
 

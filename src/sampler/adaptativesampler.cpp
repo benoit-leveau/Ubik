@@ -33,9 +33,10 @@ Color AdaptativeSampler::render(size_t x, size_t y)
     size_t sample = 0;
     Radiance radiance;
     Radiance variation;
+    unsigned short Xi[3]={0,0,y*y*y+x*x};
     for (sample=0; sample<max_samples; ++sample)
     {
-        Radiance new_radiance = integrator->render(x, y, sample);
+        Radiance new_radiance = integrator->render(x, y, sample, Xi);
         if (sample >= min_samples)
         {
             Radiance variation = (radiance/float(sample)) - ((radiance+new_radiance)/float(sample+1));

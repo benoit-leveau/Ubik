@@ -7,7 +7,7 @@ Modular design to allow for experimentations, so it's easy to implement a new Sa
   * TiledRenderer (```--renderer=tiled```) provides tiled rendering with several traversal algorightms. It allows for any number of output drivers:
     * a display driver using SDL so you can see the progress of the render
     * an output driver writing out OpenEXR files
-  * InteractiveRenderer (```--renderer=interactive```) provides interactive progressive rendering and allows to edit the scene using the mouse and keyboard
+  * InteractiveRenderer (```--renderer=interactive```) provides interactive progressive rendering and allows to edit the scene using the mouse and keyboard. It uses its own internal progressive sampler so it ignores any sampler specified on the command line.
 * Sampler:
   * FixedSampler (```--sampler=fixed```) provides fixed sampling (all pixels are evaluated the same number of times). You can specify the number of samples with ```--samples=N``` (each pixel will be sampled 2^N times)
   * AdaptativeSampler (```--sampler=adaptative```) provides adaptative sampling (pixels are sampled at least 2^*min_samples* times, up to 2^*max_samples* times or when the variation gets below *threshold*). Parameters are specified with ```--min-samples```, ```--max-samples``` and ```--threshold```.

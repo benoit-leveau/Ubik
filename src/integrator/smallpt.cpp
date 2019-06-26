@@ -113,7 +113,7 @@ SmallPt::~SmallPt()
 Radiance SmallPt::render(size_t x, size_t y, size_t sample)
 {
     // TODO: add RNG to the render function (initialized by the sampler)
-    RNG rng;
+    thread_local RNG rng;
     rng.seed(y*y*y + x*x + scene->frame + sample);
 
     size_t samps = 1;

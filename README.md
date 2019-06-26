@@ -4,17 +4,28 @@ Modular design to allow for experimentations, so it's easy to implement a new Sa
 
 **Current status:**
 * Renderer:
-  * tiled rendering with several traversal algorightms 
-  * interactive rendering using the mouse and key modifiers
-* Driver: 
-  * display driver using SDL
-  * output driver writing out OpenEXR files
+  * TiledRenderer (```--renderer=tiled```) provides tiled rendering with several traversal algorightms. It allows for any number of output drivers:
+    * a display driver using SDL so you can see the progress of the render
+    * an output driver writing out OpenEXR files
+  * InteractiveRenderer (```--renderer=interactive```) provides interactive progressive rendering and allows to edit the scene using the mouse and keyboard. It uses its own internal progressive sampler so it ignores any sampler specified on the command line.
 * Sampler:
-  * fixed sampling
+  * FixedSampler (```--sampler=fixed```) provides fixed sampling (all pixels are evaluated the same number of times). You can specify the number of samples with ```--samples=N``` (each pixel will be sampled 2^N times)
+  * AdaptativeSampler (```--sampler=adaptative```) provides adaptative sampling (pixels are sampled at least 2^*min_samples* times, up to 2^*max_samples* times or when the variation gets below *threshold*). Parameters are specified with ```--min-samples```, ```--max-samples``` and ```--threshold```.
 * Integrator:
-  * WIP embree path tracer
-  * dummy image render integrator to test the rest of the application (reads a TIFF file from disk and "renders" a noisy version of it, ie. each time a pixel of the image is sampled a random noise is added to the RGB value - the idea being that with enough samples the noise should be averaged out)
-  
+  * PathTracer (```--integrator=pathtracer```) WIP path tracing using embree
+  * SmallPt (```--integrator=smallpt```) provides path tracing using the "smallpt" algorithm (see References)
+  * ImageRender (```--integrator=image```) is used mainly to test the framework. It reads a TIFF file from disk and "renders" a noisy version of it, ie. each time a pixel of the image is sampled a random noise is added to the RGB value - the idea being that with enough samples the noise should be averaged out.
+
+# Usage
+
+Example specifying the sampler, integrator and renderer by name on the command line:
+```
+ubik --renderer=tiled --sampler=fixed --samples=2 --integrator=smallpt --width=640 --height=480 --show-window
+```
+
+This will produce the following render:
+![image](doc/ubik_tiled_smallpt.png "Example render")
+
 # Examples
 
 These examples are using the dummy image render integrator. They will be replaced by a proper 3d path render when it's implemented.
